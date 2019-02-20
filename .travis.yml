@@ -2,4 +2,4 @@ language: python
 python:
   - "3.6"
 script:
-  - pytest --cov=birdbrain --nbval --current-env
+  - pytest --cov=birdbrain --nbval-lax --current-env
