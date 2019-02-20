@@ -22,7 +22,7 @@ setup(
         'Intended Audience :: Science/Research',
         'Topic :: Multimedia :: Graphics',
     ],
-    'install_requires': [
+    install_requires=[
         'ipywidgets>=7.0.1',
         'ipydatawidgets',
         'traittypes',
