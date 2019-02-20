@@ -11,6 +11,7 @@ dependencies:
   - numba
   - scikit-image
   - vtk
+  - birdbrain
   - pip:
      - k3d
      - nibabel
