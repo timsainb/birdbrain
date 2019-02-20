@@ -8,3 +8,10 @@ nibabel
 k3d
 nipy
 vtk
+
+# for testing
+coverage
+pytest-ordering
+pytest-cov
+python-coveralls
+nbval
