@@ -1,3 +1,6 @@
+# local package
+-e .
+
 # from this package
 numpy>=1.11.0
 matplotlib
@@ -8,3 +11,13 @@ nibabel
 k3d
 nipy
 vtk
+
+pandas
+
+# for testing
+coverage
+pytest>=3.6
+pytest-ordering
+pytest-cov
+python-coveralls
+nbval
