@@ -12,6 +12,8 @@ k3d
 nipy
 vtk
 
+pandas
+
 # for testing
 coverage
 pytest>=3.6
