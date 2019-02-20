@@ -27,7 +27,13 @@ setup(
         'ipydatawidgets',
         'traittypes',
         'traitlets',
-        'numpy>=1.11.0'
+        'numpy>=1.11.0',
+        'k3d',
+        'nibabel',
+        'nipy',
+        'scipy',
+        'matplotlib',
+        'vtk'
     ],
 
 )

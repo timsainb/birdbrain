@@ -7,3 +7,4 @@ tqdm
 nibabel
 k3d
 nipy
+vtk

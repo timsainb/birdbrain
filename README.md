@@ -19,6 +19,7 @@ This is a small library for viewing the songbird brain atlas' at https://www.uan
   - pip installable
   - binder notebooks
   - proposed updated y-sinus differs from actual updated y-sinus - this appears to have to do with laterality flipping...
+  - update test_* for testing different features
 
 
 Project Organization
