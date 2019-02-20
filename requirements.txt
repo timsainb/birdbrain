@@ -1,3 +1,6 @@
+# local package
+-e .
+
 # from this package
 numpy>=1.11.0
 matplotlib
