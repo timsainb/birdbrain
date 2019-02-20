@@ -1,13 +1,5 @@
-dist: trusty
-sudo: required
-dist: xenial
 language: python
 python:
   - "3.6"
-cache: pip
-install:
-  - pip install --requirement requirements.txt
 script:
   - pytest
-addons:
-  firefox: "latest"
