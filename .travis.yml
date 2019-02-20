@@ -1,15 +1,13 @@
 dist: trusty
-sudo: false
+sudo: required
+dist: xenial
 language: python
 python:
   - "3.6"
 cache: pip
-before_install:
-  - export TZ=America/New_York
 install:
   - pip install --requirement requirements.txt
 script:
   - pytest
-after_success:
-  - test $TRAVIS_EVENT_TYPE = "cron" &&
-    python upkeep.py --workdays-ahead=1 --token=$GH_TOKENanguagea: python
+addons:
+  firefox: "latest"

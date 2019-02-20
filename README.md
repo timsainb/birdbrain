@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/timsainb/birdbrain.svg?branch=master)](https://travis-ci.org/timsainb/birdbrain)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb)
+
+
 birdbrain
 ==============================
 
