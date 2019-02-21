@@ -17,7 +17,7 @@ This is a small library for viewing the songbird brain atlas' at https://www.uan
 
 
 ### Usage Instructions
-You can either view the data directly from the binder notebooks via your internet browser (reccomeded at first), or you can install and run this package locally on your own computer. 
+You can either view the data directly from the [binder notebooks]((https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) via your internet browser (reccomeded at first), or you can install and run this package locally on your own computer. 
 
 ### Installation
 To install the python package:
@@ -36,13 +36,15 @@ To be added...
   - binder notebooks
   - proposed updated y-sinus differs from actual updated y-sinus - this appears to have to do with laterality flipping...
   - update test_* for testing different features
+  - remove jupyterlab_git from dependences (why is it there in the first place?)
 
 
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
 #### References
 - [Brain atlas](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) for starling, canary, zebra finch, pigeon, tilapia, and mustached bat brain atlas'
 - [VTK python](https://pypi.org/project/vtk/) for 3d graphics 
 - [K3D tools](https://github.com/K3D-tools/K3D-jupyter) for 3d visualization
 - [nibabel](http://nipy.org/nibabel/) For reading/manipulating neuroimaging data (.img files)
+- [cookiecutter data science](https://drivendata.github.io/cookiecutter-data-science/) project template was used
+
 
