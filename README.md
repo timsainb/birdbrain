@@ -17,7 +17,7 @@ This is a small library for viewing the songbird brain atlas' at https://www.uan
 
 
 ### Usage Instructions
-You can either view the data directly from the [binder notebooks]((https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) via your internet browser (reccomeded at first), or you can install and run this package locally on your own computer. 
+You can either view the data directly from the [binder notebooks](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) via your internet browser (reccomeded at first), or you can install and run this package locally on your own computer. 
 
 ### Installation
 To install the python package:
