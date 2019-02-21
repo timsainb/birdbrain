@@ -2,6 +2,8 @@ language: python
 os:
   - linux
 python:
+  - "2.7"
+  - "3.5"
   - "3.6"
 script:
   - pytest --cov=birdbrain --current-env
