@@ -33,7 +33,11 @@ setup(
         'nipy',
         'scipy',
         'matplotlib',
-        'vtk'
+        'vtk',
+        'pandas',
+        'scikit-image',
+        'tqdm'
+
     ],
 
 )
