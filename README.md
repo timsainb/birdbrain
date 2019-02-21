@@ -5,14 +5,30 @@
 birdbrain
 ==============================
 
-Tim Sainburg
+Tim Sainburg & Marvin Thielk
 
 Work in progress.
 
-This is a small library for viewing the songbird brain atlas' at https://www.uantwerpen.be/en/rg/bioimaging-lab/research/mri-atlases/starling-brain-atlas/ 
+This is a small library for viewing the songbird brain atlas' at https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/
+
+![screenshot](assets/3d_screenshot.png)
+
+![field_l](assets/field_l.png)
 
 
-- TODO
+### Usage Instructions
+You can either view the data directly from the [binder notebooks]((https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) via your internet browser (reccomeded at first), or you can install and run this package locally on your own computer. 
+
+### Installation
+To install the python package:
+
+`pip install birdbrain`
+
+##### Additional requirements
+To be added...
+
+
+- **TODO**
   - fix colormap error where adjacent nuclei will be labelled with the same color (e.g. NCM and field L)
   - update package to work with other atlas'
   - generate STL files from brain images
@@ -20,57 +36,15 @@ This is a small library for viewing the songbird brain atlas' at https://www.uan
   - binder notebooks
   - proposed updated y-sinus differs from actual updated y-sinus - this appears to have to do with laterality flipping...
   - update test_* for testing different features
+  - remove jupyterlab_git from dependences (why is it there in the first place?)
 
 
-Project Organization
-------------
 
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
-    │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
+#### References
+- [Brain atlas](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) for starling, canary, zebra finch, pigeon, tilapia, and mustached bat brain atlas'
+- [VTK python](https://pypi.org/project/vtk/) for 3d graphics 
+- [K3D tools](https://github.com/K3D-tools/K3D-jupyter) for 3d visualization
+- [nibabel](http://nipy.org/nibabel/) For reading/manipulating neuroimaging data (.img files)
+- [cookiecutter data science](https://drivendata.github.io/cookiecutter-data-science/) project template was used
 
 
---------
-
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>

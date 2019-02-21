@@ -11,6 +11,8 @@ dependencies:
   - numba
   - scikit-image
   - vtk
+  - tqdm
+  - nipy
   - pip:
      - k3d
      - nibabel
