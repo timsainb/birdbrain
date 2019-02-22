@@ -36,7 +36,9 @@ setup(
         'vtk',
         'pandas',
         'scikit-image',
-        'tqdm'
+        'tqdm',
+        'patool',
+        'pyunpack'
 
     ],
 
