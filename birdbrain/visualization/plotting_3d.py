@@ -10,9 +10,11 @@ from birdbrain import utils
 import k3d
 import vtk
 
+
 def vox2vtk(voxels, zero_point=None):
     """ converts voxels to vkt mesh object
     reduce_poly: 0-1, less to more simplification
+    zero_point: if a zero point is provided, the extent of the vtk file is set so that the zero point is in the center
     """
     # import voxels
     xs, ys, zs = voxels.shape
@@ -28,12 +30,7 @@ def vox2vtk(voxels, zero_point=None):
         dataImporter.SetWholeExtent(0, xs - 1, 0, ys - 1, 0, zs - 1)
     else:
         dataImporter.SetWholeExtent(
-            -zero_point["ventral-dorsal"],
-            xs - 1,
-            -zero_point["posterior-anterior"],
-            ys - 1,
-            -zero_point["medial-lateral"],
-            zs - 1,
+            -zero_point[0], xs - 1, -zero_point[1], ys - 1, -zero_point[2], zs - 1
         )
 
     # convert to mesh
@@ -53,15 +50,28 @@ def vtk_reduce(dmc, polygon_simplification=0.1, verbose=False):
     decimate.SetInputData(dmc.GetOutput())
     decimate.SetTargetReduction(polygon_simplification)
     decimate.Update()
-    decimatedPoly = vtk.vtkPolyData()
-    decimatedPoly.ShallowCopy(decimate.GetOutput())
 
-    if verbose:
-        print(
-            "pct decimated:",
-            1 - (decimatedPoly.GetNumberOfPolys() / dmc.GetOutput().GetNumberOfPolys()),
-        )
-    return decimatedPoly
+    return decimate
+
+
+def write_to_stl(vtk_obj, filename):
+    writer = vtk.vtkSTLWriter()
+    writer.SetInputConnection(vtk_obj.GetOutputPort())
+    writer.SetFileTypeToBinary()
+    writer.SetFileName(filename)
+    writer.Write()
+
+
+def generate_stl(filename, voxels, zero_point=None, polygon_simplification=0.1):
+    """ 
+    zero point: the center point of the voxels (e.g. the y sinus in voxels)
+    polygon_simplification: how much to reduce the number of polygons (1 = more)
+    
+    """
+    dmc = vox2vtk(voxels, zero_point)
+    decimatedPoly = vtk_reduce(dmc, polygon_simplification=polygon_simplification)
+    # print(dmc, decimatedPoly)
+    write_to_stl(decimatedPoly, filename)
 
 
 def plot_regions_3d(
@@ -74,19 +84,20 @@ def plot_regions_3d(
     """ plots brain regions on top of brain
     """
     # collect data
-    brain_data = atlas.voxel_data.loc["Brain", "voxels"]
+    brain_data = np.swapaxes(atlas.voxel_data.loc["Brain", "voxels"], 0, 2)
 
     # get axis boundaries
     bounds = np.array(
-        [
-            atlas.ventral - atlas.y_sinus_um_transform["ventral-dorsal"],
-            atlas.dorsal - atlas.y_sinus_um_transform["ventral-dorsal"],
-            atlas.posterior - atlas.y_sinus_um_transform["posterior-anterior"],
-            atlas.anterior - atlas.y_sinus_um_transform["posterior-anterior"],
-            atlas.lateral_neg - atlas.y_sinus_um_transform["medial-lateral"],
-            atlas.lateral_pos - atlas.y_sinus_um_transform["medial-lateral"],
-        ]
+        [atlas.xmin, atlas.xmax, atlas.ymin, atlas.ymax, atlas.zmin, atlas.zmax]
     ).astype("int")
+
+    # the zero point in voxels, relative to y sinus
+    zero_point = utils.um_to_vox(
+        [0, 0, 0],
+        atlas.voxel_data.loc["Brain", "affine"],
+        atlas.um_mult,
+        atlas.y_sinus_um_transform,
+    )
 
     # downsample
     if downsample_pct < 1:
@@ -103,8 +114,9 @@ def plot_regions_3d(
         compression_level=9,
     )
 
-    # the zero point in voxels, relative to y sinus
-    zero_point = atlas.region_vox.loc["y_sinus", "coords_vox"]
+    # set atlas a region for y sinus
+    atlas.region_vox.loc["y_sinus", "coords_vox"] = zero_point
+    print(zero_point)
 
     color_pal = atlas.label_cmap.colors
 
@@ -113,9 +125,13 @@ def plot_regions_3d(
     for ri, (reg, type_) in enumerate(tqdm(regions_to_plot, leave=False)):
         color = (np.array(color_pal[ri % len(color_pal)]) * 255).astype("int")
         # get voxel_data
-        vox_data = np.array(
-            atlas.voxel_data.loc[type_, "voxels"]
-            == atlas.brain_labels.loc[reg, "label"]
+        vox_data = np.swapaxes(
+            np.array(
+                atlas.voxel_data.loc[type_, "voxels"]
+                == atlas.brain_labels.loc[reg, "label"]
+            ),
+            0,
+            2,
         )
         # convert to vtk format
         vtk_dat = vox2vtk(vox_data, zero_point=zero_point)
@@ -163,22 +179,25 @@ def plot_regions_3d(
     plot.display()
 
     plot.camera_auto_fit = False
-    plot.grid_visible = False
-    # camera loc, center or rocation, angle (?)
-    plot.camera = [9000, 4000, -20000, 0, 0, 0, 0.95, 0.1, 0.36]
+    # plot.grid_visible = False
 
-    dorsal_ventral = widgets.FloatSlider(
-        value=0, min=bounds[0], max=bounds[1], step=100, description="ventral-dorsal:"
+    # camera loc, center or rocation, angle (?)
+    plot.camera = [-22977, 18052, 8696, 0, 0, 0, 0.14, -0.16, 0.997]
+
+    widget_controllers(atlas, vec, plot, bounds, regions_to_plot)
+
+    return plot, vec
+
+
+def widget_controllers(atlas, vec, plot, bounds, regions_to_plot):
+    x_slider = widgets.FloatSlider(
+        value=0, min=bounds[0], max=bounds[1], step=100, description="medial-lateral:"
     )
-    anterior_posterior = widgets.FloatSlider(
-        value=0,
-        min=bounds[2],
-        max=bounds[3],
-        step=100,
-        description="posterior-anterior:",
+    y_slider = widgets.FloatSlider(
+        value=0,min=bounds[2], max=bounds[3],step=100,description="posterior-anterior:",
     )
-    medial_lateral = widgets.FloatSlider(
-        value=0, min=bounds[4], max=bounds[5], step=100, description="medial-lateral:"
+    z_slider = widgets.FloatSlider(
+        value=0, min=bounds[4], max=bounds[5], step=100, description="ventral-dorsal:"
     )
     region_dropdown = widgets.Dropdown(
         options=list(np.array(regions_to_plot)[:, 0]) + ["y_sinus"],
@@ -186,7 +205,7 @@ def plot_regions_3d(
         description="Region:",
     )
 
-    def dv(change):
+    def s_x(change):
         """ controls dorsal ventral widget
         """
         if change["type"] == "change" and change["name"] == "value":
@@ -208,7 +227,7 @@ def plot_regions_3d(
             pc = copy.deepcopy(plot.camera)
             plot.camera = pc[:3] + [change["new"]] + pc[-5:]
 
-    def ap(change):
+    def s_y(change):
         """ controls dorsal ventral widget
         """
         if change["type"] == "change" and change["name"] == "value":
@@ -231,7 +250,7 @@ def plot_regions_3d(
             pc = copy.deepcopy(plot.camera)
             plot.camera = pc[:4] + [change["new"]] + pc[-4:]
 
-    def ml(change):
+    def s_z(change):
         """ controls dorsal ventral widget
         """
         if change["type"] == "change" and change["name"] == "value":
@@ -260,14 +279,12 @@ def plot_regions_3d(
         if change["type"] == "change" and change["name"] == "value":
 
             change_loc = utils.vox_to_um(
+                atlas.region_vox.loc[change["new"], "coords_vox"],
                 atlas.voxel_data.loc["Brain", "affine"],
-                utils.loc_dict_to_list(atlas.region_vox.loc[change["new"], "coords_vox"]),
                 atlas.um_mult,
                 atlas.y_sinus_um_transform,
             )
-            dv_loc = change_loc["ventral-dorsal"]
-            ap_loc = change_loc["posterior-anterior"]
-            ml_loc = -change_loc["medial-lateral"]
+            dv_loc, ap_loc, ml_loc = change_loc
 
             vec.origins = [
                 dv_loc - 5000,
@@ -281,24 +298,20 @@ def plot_regions_3d(
                 ml_loc - 5000,
             ]
             # set sliders
-            anterior_posterior.value = ap_loc
-            dorsal_ventral.value = dv_loc
-            medial_lateral.value = ml_loc
+            y_slider.value = ap_loc
+            x_slider.value = dv_loc
+            z_slider.value = ml_loc
 
             # move the rotational axis
             pc = copy.deepcopy(plot.camera)
             plot.camera = pc[:3] + [dv_loc, ap_loc, ml_loc] + pc[-3:]
 
-    dorsal_ventral.observe(dv)
-    display(dorsal_ventral)
-    anterior_posterior.observe(ap)
-    display(anterior_posterior)
-    medial_lateral.observe(ml)
-    display(medial_lateral)
+    x_slider.observe(s_x)
+    display(x_slider)
+    y_slider.observe(s_y)
+    display(y_slider)
+    z_slider.observe(s_z)
+    display(z_slider)
 
     region_dropdown.observe(reg_dd)
     display(region_dropdown)
-
-    plot.camera = [9000, 4000, -20000, 0, 0, 0, 0.95, 0.1, 0.36]
-
-    return plot, vec

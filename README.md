@@ -29,6 +29,9 @@ To be added...
 
 
 - **TODO**
+  - the 2d visualizations should have the same widget tools as the 3d visualizations
+  - making an atlas object should automatically download data when you call it, rather than having a seperate notebook for downloading
+  - y sinus should be default the one we set manually, and a flag to leave it the other way
   - fix colormap error where adjacent nuclei will be labelled with the same color (e.g. NCM and field L)
   - update package to work with other atlas'
   - generate STL files from brain images

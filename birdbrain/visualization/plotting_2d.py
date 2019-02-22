@@ -2,8 +2,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from birdbrain import utils
-
+from birdbrain.utils import vox_to_um, um_to_vox, get_axis_bounds, inverse_dict
 
 
 def plt_box_bg(background_dims, ax, extent, box_size=20, mn=0.2, mx=0.3):
@@ -43,10 +42,10 @@ def plot_transection(
     fig, axs = plt.subplots(3, n_slice, figsize=[n_slice * zoom, 3 * zoom])
 
     # loop through axis to view
-    for brain_exists, extent, axis in [
-        [brain_exists_saggital, atlas.saggital_extent, 0],
-        [brain_exists_coronal, atlas.coronal_extent, 1],
-        [brain_exists_transversal, atlas.transversal_extent, 2],
+    for brain_exists, axis in [
+        [brain_exists_saggital, 0],
+        [brain_exists_coronal, 1],
+        [brain_exists_transversal, 2],
     ]:
         # loop through slices
         for slc_i, slc_loc in enumerate(
@@ -55,139 +54,161 @@ def plot_transection(
 
             slc = np.rot90(np.take(data, indices=slc_loc, axis=axis).squeeze())
 
-            plt_box_bg(
-                background_dims=np.shape(slc),
-                ax=axs[axis, slc_i],
-                extent=extent,
-                box_size=20,
-            )
+            # plt_box_bg(
+            #    background_dims=np.shape(slc),
+            #    ax=axs[axis, slc_i],
+            #    box_size=20,
+            # )
 
             img = np.rot90(np.take(img_data, slc_loc, axis=axis).squeeze()).astype(
                 "int32"
             )
 
             if np.sum(img) > 0:
-                axs[axis, slc_i].matshow(
-                    img ** 0.5, cmap=atlas.img_cmap, extent=extent, vmin=1e-4
-                )
+                axs[axis, slc_i].matshow(img ** 0.5, cmap=atlas.img_cmap, vmin=1e-4)
 
             if np.sum(slc) > 0:
                 axs[axis, slc_i].matshow(
-                    slc,
-                    alpha=region_alpha,
-                    cmap=cmap,
-                    vmin=0.1,
-                    vmax=np.max(slc),
-                    extent=extent,
+                    slc, alpha=region_alpha, cmap=cmap, vmin=0.1, vmax=np.max(slc)
                 )
     return fig
 
 
-def plot_location_coordinates(
+def plot_box_bg(ax, extent, box_size_um=2000, mn=0.2, mx=0.3):
+    """ 
+    mn, mx: darkness of blocks
+    """
+    # number of boxes based on extent
+    d0 = int(np.ceil((extent[1] - extent[0]) / (box_size_um * 2)))
+    d1 = int(np.ceil((extent[3] - extent[2]) / (box_size_um * 2)))
+
+    # make grid
+    bg = np.vstack(
+        [
+            np.array(([mn, mx] * (d0) + [mx, mn] * (d0))).reshape(2, d0 * 2)
+            for i in range(d1)
+        ]
+    )
+
+    # compute new extent of d0,d1 boxes to keep um 1000
+    new_extent = [
+        extent[0],
+        extent[0] + (d0 * 2 * box_size_um),
+        extent[2],
+        extent[2] + (d1 * 2 * box_size_um),
+    ]
+    # plot grid
+    ax.matshow(
+        bg, cmap=plt.cm.gray, interpolation="nearest", extent=new_extent, vmin=0, vmax=1
+    )
+
+
+def plot_2d_coordinates(
     atlas,
-    point,
-    regions_to_plot,
-    points_to_plot=None,
+    point_in_voxels=None,
+    point_in_um=None,
+    regions_to_plot="Brainregions",
     img_ds="T2",
     region_alpha=0.25,
-    zoom=3,
+    line_alpha=0.5,
+    zoom=6,
 ):
+    """ Produce a 2d plot of brain data
+    """
+    # get the point in either um or voxels
+    if point_in_um is None:
+        point_in_um = np.array(
+            vox_to_um(
+                point_in_voxels,
+                atlas.voxel_data.loc["Brain", "affine"],
+                atlas.um_mult,
+                atlas.y_sinus_um_transform,
+            )
+        )
+        point_in_voxels = np.array(point_in_voxels)
+    if point_in_voxels is None:
+        point_in_voxels = np.array(
+            um_to_vox(
+                point_in_um,
+                atlas.voxel_data.loc["Brain", "affine"],
+                atlas.um_mult,
+                atlas.y_sinus_um_transform,
+            )
+        )
+        point_in_um = np.array(point_in_um)
+
+    # print the point in um
+    print({inverse_dict(atlas.axes_dict)[i]: int(point_in_um[i]) for i in range(3)})
 
     # the type of image to plot
     label_data = atlas.voxel_data.loc[regions_to_plot, "voxels"]
-
     img_data = atlas.voxel_data.loc[img_ds, "voxels"]
-
     brain_data = atlas.voxel_data.loc["Brain", "voxels"]
 
     # set voxels where there is no brain to 0
     img_data[brain_data == 0] = 0
 
-    # get the image data
-    sagittal_img = np.rot90(img_data[point["medial-lateral"], :, :].squeeze()).astype(
-        "int32"
-    )
-    coronal_img = np.rot90(
-        img_data[:, point["posterior-anterior"], :].squeeze()
-    ).astype("int32")
-    transversal_img = np.rot90(
-        img_data[:, :, point["ventral-dorsal"]].squeeze()
-    ).astype("int32")
+    # get image data
+    x_img = img_data[point_in_voxels[0], :, :].squeeze()
+    y_img = img_data[:, point_in_voxels[1], :].squeeze()
+    z_img = img_data[:, :, point_in_voxels[2]].squeeze()
 
-    # get labels data
-    sagittal_labels = np.rot90(
-        label_data[point["medial-lateral"], :, :].squeeze()
-    ).astype("int32")
-    coronal_labels = np.rot90(
-        label_data[:, point["posterior-anterior"], :].squeeze()
-    ).astype("int32")
-    transversal_labels = np.rot90(
-        label_data[:, :, point["ventral-dorsal"]].squeeze()
-    ).astype("int32")
+    # get label data
+    x_lab = label_data[point_in_voxels[0], :, :].squeeze()
+    y_lab = label_data[:, point_in_voxels[1], :].squeeze()
+    z_lab = label_data[:, :, point_in_voxels[2]].squeeze()
 
-    # subset labelsu
+    # subset labels dataframe for only the ones appearing here
     unique_labels = np.unique(
-        list(sagittal_labels.flatten())
-        + list(coronal_labels.flatten())
-        + list(transversal_labels.flatten())
+        list(x_lab.flatten()) + list(y_lab.flatten()) + list(z_lab.flatten())
     )
 
+    # subset brain_labels dataframe for only the labels shown here
     regions_plotted = atlas.brain_labels[
         (atlas.brain_labels.type_ == regions_to_plot)
         & ([label in unique_labels for label in atlas.brain_labels.label.values])
     ]
+    # normalize colors to regions being plotted
     cmin = np.min(regions_plotted.label.values) - 1e-4
     cmax = np.max(regions_plotted.label.values)
-
-    # for normalizing colors to range
     cnorm = matplotlib.colors.Normalize(vmin=cmin, vmax=cmax)
+    # set colors specific to labels
     regions_plotted["colors"] = list(
         atlas.label_cmap(cnorm(regions_plotted.label.values))
     )
 
-    fig, axs = plt.subplots(ncols=2, nrows=2, figsize=(2 * zoom, 2 * zoom))
-
-    axlist = [
-        [
-            sagittal_img,
-            0,
-            1,
-            atlas.sagittal_shadow,
-            atlas.saggital_extent,
-            "saggital",
-            sagittal_labels,
-            atlas.saggital_extent_plt,
-        ],
-        [
-            coronal_img,
-            0,
-            0,
-            atlas.coronal_shadow,
-            atlas.coronal_extent,
-            "coronal",
-            coronal_labels,
-            atlas.coronal_extent_plt,
-        ],
-        [
-            transversal_img,
-            1,
-            0,
-            atlas.transversal_shadow,
-            atlas.transversal_extent,
-            "transversal",
-            transversal_labels,
-            atlas.transversal_extent_plt,
-        ],
+    # make a dataframe corresponding to each axis (which images belong in which axis)
+    ax_list = [
+        [0, 0, "anterior-posterior"],
+        [0, 1, "medial-lateral"],
+        [1, 0, "dorsal-ventral"],
     ]
 
-    for img, ax0, ax1, shadow, extent, title, labels, extent_plt in axlist:
-        plt_box_bg(
-            background_dims=np.shape(img),
-            ax=axs[ax0, ax1],
-            extent=extent_plt,
-            box_size=20,
+    fig, axs = plt.subplots(ncols=2, nrows=2, figsize=(2 * zoom, 2 * zoom))
+    for ax0, ax1, axis in ax_list:
+        ax = axs[ax0, ax1]
+        # get bounds
+        shadow = np.rot90(img_data.sum(axis=atlas.axes_dict[axis]) > 0)
+
+        # axis extents
+        xlims, ylims = get_axis_bounds(atlas, axis=atlas.axes_dict[axis])
+
+        # plot grid background
+        plot_box_bg(ax, np.concatenate([xlims, ylims]))
+
+        # get extent from voxels
+        extent = np.concatenate(
+            np.array(
+                [
+                    [atlas.xmin, atlas.xmax],
+                    [atlas.ymin, atlas.ymax],
+                    [atlas.zmin, atlas.zmax],
+                ]
+            )[np.arange(3) != atlas.axes_dict[axis]]
         )
-        axs[ax0, ax1].matshow(
+
+        # plot shadow background
+        ax.matshow(
             shadow * 255,
             cmap=atlas.img_cmap,
             extent=extent,
@@ -195,115 +216,32 @@ def plot_location_coordinates(
             vmax=1,
             alpha=0.5,
         )
-        axs[ax0, ax1].matshow(img ** 0.5, cmap=atlas.img_cmap, extent=extent, vmin=1e-4)
-        axs[ax0, ax1].matshow(
-            labels,
+
+        # plot image
+        img = [x_img, y_img, z_img][atlas.axes_dict[axis]]
+        ax.matshow(np.rot90(img ** 0.5), cmap=atlas.img_cmap, extent=extent, vmin=1e-4)
+        # plot labels
+        labels = [x_lab, y_lab, z_lab][atlas.axes_dict[axis]]
+        ax.matshow(
+            np.rot90(labels),
             cmap=atlas.label_cmap,
             extent=extent,
             vmin=cmin,
             vmax=cmax,
             alpha=region_alpha,
         )
-        axs[ax0, ax1].set_title(title)
 
-    axs[1, 0].set_title("transversal")
-    axs[1, 0].set_xlabel("micrometers")
-    axs[1, 0].set_ylabel("micrometers")
-    axs[0, 0].set_ylabel("micrometers")
+        ax.set_xlim(xlims)
+        ax.set_ylim(ylims)
 
-    # if there are points to plot, plot them in all 3 axes
-    if points_to_plot is not None:
-        points_to_plot = np.array(points_to_plot)
-        kws = {"color": "red", "s": 10}
-        axs[0, 1].scatter(points_to_plot[:, 1], points_to_plot[:, 2], **kws)
-        axs[0, 0].scatter(points_to_plot[:, 0], points_to_plot[:, 2], **kws)
-        axs[1, 0].scatter(points_to_plot[:, 0], points_to_plot[:, 1], **kws)
+        # plot line at y sinus
+        ax.axhline(0, color=(1, 1, 1, line_alpha), ls="dashed")
+        ax.axvline(0, color=(1, 1, 1, line_alpha), ls="dashed")
 
-    point_list = utils.loc_dict_to_list(point)
-    coords = utils.vox_to_um(
-        atlas.voxel_data.loc[regions_to_plot, "affine"],
-        point_list,
-        atlas.um_mult,
-        atlas.y_sinus_um_transform,
-    )
-
-    # this seems like a bug... I'm not sure why this is getting flipped
-    coords["medial-lateral"] *= -1
-
-    print(
-        " | ".join([key + ": " + str(round(val)) + "um" for key, val in coords.items()])
-    )
-
-    # set limits
-    axs[0, 1].set_xlim(
-        [
-            atlas.axis_bounds_min["posterior-anterior"],
-            atlas.axis_bounds_max["posterior-anterior"],
-        ]
-    )
-    axs[0, 1].set_ylim(
-        [
-            atlas.axis_bounds_min["ventral-dorsal"],
-            atlas.axis_bounds_max["ventral-dorsal"],
-        ]
-    )
-
-    axs[0, 0].set_xlim(
-        [
-            atlas.axis_bounds_min["medial-lateral"],
-            atlas.axis_bounds_max["medial-lateral"],
-        ]
-    )
-    axs[0, 0].set_ylim(
-        [
-            atlas.axis_bounds_min["ventral-dorsal"],
-            atlas.axis_bounds_max["ventral-dorsal"],
-        ]
-    )
-
-    axs[1, 0].set_xlim(
-        [
-            atlas.axis_bounds_min["medial-lateral"],
-            atlas.axis_bounds_max["medial-lateral"],
-        ]
-    )
-    axs[1, 0].set_ylim(
-        [
-            atlas.axis_bounds_min["posterior-anterior"],
-            atlas.axis_bounds_max["posterior-anterior"],
-        ]
-    )
-
-    # draw the line through
-    line_alpha = 0.5
-    axs[0, 1].axvline(
-        coords["posterior-anterior"], color=(0, 0, 0, line_alpha), ls="dashed"
-    )
-    axs[0, 1].axhline(
-        coords["ventral-dorsal"], color=(0, 0, 0, line_alpha), ls="dashed"
-    )
-
-    axs[0, 0].axvline(
-        coords["medial-lateral"], color=(0, 0, 0, line_alpha), ls="dashed"
-    )
-    axs[0, 0].axhline(
-        coords["ventral-dorsal"], color=(0, 0, 0, line_alpha), ls="dashed"
-    )
-
-    axs[1, 0].axvline(
-        coords["medial-lateral"], color=(0, 0, 0, line_alpha), ls="dashed"
-    )
-    axs[1, 0].axhline(
-        coords["posterior-anterior"], color=(0, 0, 0, line_alpha), ls="dashed"
-    )
-
-    axs[1, 1].axis("off")
-
-    # draw dashed midline
-    for ax in axs.flatten()[:-1]:
-        ax.axvline(0, color=(1, 1, 1, 0.25), ls="dashed")
-        ax.axhline(0, color=(1, 1, 1, 0.25), ls="dashed")
-        ax.set_facecolor("#333333")
+        # plot line at specified location
+        x_um_loc, y_um_loc = point_in_um[np.arange(3) != atlas.axes_dict[axis]]
+        ax.axhline(y_um_loc, color=(0, 0, 0, line_alpha), ls="dashed")
+        ax.axvline(x_um_loc, color=(0, 0, 0, line_alpha), ls="dashed")
 
     # label regions
     patches = []
@@ -311,6 +249,92 @@ def plot_location_coordinates(
         patches.append(mpatches.Patch(color=row.colors, label=row.region))
     axs[1, 1].legend(handles=patches, loc="center", ncol=2)
     plt.tight_layout()
+    axs[1, 1].axis("off")
 
-    plt.show()
     return fig
+
+
+from IPython.display import display, clear_output
+from ipywidgets import widgets
+
+
+def widget_controllers_2d(atlas, regions_to_plot="Nuclei", **kwargs):
+    def reg_dd(change):
+        # move location to the center of that region
+
+        if change["type"] == "change" and change["name"] == "value":
+
+            change_loc = vox_to_um(
+                atlas.region_vox.loc[change["new"], "coords_vox"],
+                atlas.voxel_data.loc["Brain", "affine"],
+                atlas.um_mult,
+                atlas.y_sinus_um_transform,
+            )
+            reset_controls(change_loc)
+
+    def reset_controls(change_loc=[0, 0, 0]):
+        x_slider.value, y_slider.value, z_slider.value = change_loc
+
+    def on_button_click(b):
+        clear_output()
+        plot_2d_coordinates(
+            atlas,
+            point_in_um=[x_slider.value, y_slider.value, z_slider.value],
+            regions_to_plot=regions_to_plot,
+            **kwargs
+        )
+        display(x_slider)
+        display(y_slider)
+        display(z_slider)
+        display(region_dropdown)
+        display(button)
+
+    regions = [
+        [reg, "Nuclei"]
+        for reg in list(
+            atlas.brain_labels[
+                atlas.brain_labels.type_ == regions_to_plot
+            ].region.values
+        )
+    ]
+
+    region_dropdown = widgets.Dropdown(
+        options=list(np.array(regions)[:, 0]) + ["y_sinus"],
+        value="y_sinus",
+        description="Region:",
+    )
+
+    x_slider = widgets.FloatSlider(
+        value=(atlas.xmax - atlas.ymin) / 2,
+        min=atlas.xmin,
+        max=atlas.xmax,
+        step=100,
+        description="medial-lateral:",
+    )
+    y_slider = widgets.FloatSlider(
+        value=(atlas.ymax - atlas.ymin) / 2,
+        min=atlas.ymin,
+        max=atlas.ymax,
+        step=100,
+        description="posterior-anterior:",
+    )
+    z_slider = widgets.FloatSlider(
+        value=(atlas.zmax - atlas.zmin) / 2,
+        min=atlas.zmin,
+        max=atlas.zmax,
+        step=100,
+        description="ventral-dorsal:",
+    )
+
+    button = widgets.Button(description="Generate graph")
+
+    display(x_slider)
+    display(y_slider)
+    display(z_slider)
+    display(region_dropdown)
+    display(button)
+
+    reset_controls()
+
+    region_dropdown.observe(reg_dd)
+    button.on_click(on_button_click)
