@@ -7,6 +7,7 @@ from birdbrain.utils import vox_to_um, inverse_dict
 import pandas as pd
 import birdbrain.downloading as dl
 
+
 class atlas(object):
     def __init__(
         self,
@@ -17,30 +18,40 @@ class atlas(object):
         smoothing=[],
         smoothing_sigma=2,
         updated_y_sinus=None,
-        species = None, 
-        password = None
+        species=None,
+        password=None,
     ):
 
         # path of delineations
         delin_path = os.path.join(os.path.abspath(dset_dir), "delineations/")
 
-        if species == 'canary':
-            self.brain_labels = pd.read_csv('../../assets/csv/canary_regions.csv', index_col='region')
-            self.brain_labels.columns =['label', 'region', 'type_']
+        if species == "canary":
+            self.brain_labels = pd.read_csv(
+                "../../assets/csv/canary_regions.csv", index_col="region"
+            )
+            self.brain_labels.columns = ["label", "region", "type_"]
             dl.get_canary_data()
-        elif species == 'starling':
+
+        elif species == "starling":
             dl.get_starling_data()
             # path of labels
             text_files = glob(os.path.join(delin_path, "*.txt"))
             # transcription labels ['label', 'region', 'type_']
             if len(text_files) > 0:
                 self.brain_labels = utils.get_brain_labels(text_files)
-        elif species == 'zebra_finch':
-            raise NotImplementedError('TODO')
-            dl.get_zebra_finch_data(password)
-        elif species == 'pidgeon':
-            raise NotImplementedError('TODO')
 
+        elif species == "zebra_finch":
+            self.brain_labels = pd.read_csv(
+                "../../assets/csv/zebra_finch_regions.csv", index_col="region"
+            )
+            self.brain_labels.columns = ["label", "region", "type_"]
+            dl.get_zebra_finch_data(password)
+
+        elif species == "pidgeon":
+            raise NotImplementedError("TODO")
+
+        elif species == "mustached_bat":
+            raise NotImplementedError("TODO")
 
         # how axes labels relate to affine transformed data in voxels
         self.axes_dict = {
@@ -50,13 +61,10 @@ class atlas(object):
         }
         self.inverse_axes_dict = inverse_dict(self.axes_dict)
 
-        
-
         # path of images
         img_files = glob(os.path.join(delin_path, "*.img")) + glob(
             os.path.join(dset_dir, "*.img")
         )
-        
 
         # images from each type of scan, as well as transcribed locations ['type_', 'src', 'voxels']
         self.voxel_data = utils.get_voxel_data(img_files)

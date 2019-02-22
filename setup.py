@@ -37,9 +37,7 @@ setup(
         'pandas',
         'scikit-image',
         'tqdm',
-        'patool',
-        'pyunpack'
-
+        'patool'
     ],
 
 )

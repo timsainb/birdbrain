@@ -22,4 +22,3 @@ pytest-cov
 python-coveralls
 nbval
 patool
-pyunpack
