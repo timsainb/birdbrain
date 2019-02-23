@@ -142,16 +142,18 @@ def plot_2d_coordinates(
 
     # the type of image to plot
     label_data = atlas.voxel_data.loc[regions_to_plot, "voxels"]
-    img_data = atlas.voxel_data.loc[img_ds, "voxels"]
     brain_data = atlas.voxel_data.loc["Brain", "voxels"]
 
-    # set voxels where there is no brain to 0
-    img_data[brain_data == 0] = 0
+    # if no image data is provided, do not plot it
+    if img_ds is not None:
+        img_data = atlas.voxel_data.loc[img_ds, "voxels"]
+        # set voxels where there is no brain to 0
+        img_data[brain_data == 0] = 0
 
-    # get image data
-    x_img = img_data[point_in_voxels[0], :, :].squeeze()
-    y_img = img_data[:, point_in_voxels[1], :].squeeze()
-    z_img = img_data[:, :, point_in_voxels[2]].squeeze()
+        # get image data
+        x_img = img_data[point_in_voxels[0], :, :].squeeze()
+        y_img = img_data[:, point_in_voxels[1], :].squeeze()
+        z_img = img_data[:, :, point_in_voxels[2]].squeeze()
 
     # get label data
     x_lab = label_data[point_in_voxels[0], :, :].squeeze()
@@ -169,8 +171,11 @@ def plot_2d_coordinates(
         & ([label in unique_labels for label in atlas.brain_labels.label.values])
     ]
     # normalize colors to regions being plotted
-    cmin = np.min(regions_plotted.label.values) - 1e-4
-    cmax = np.max(regions_plotted.label.values)
+    if len(regions_plotted) > 0:
+        cmin = np.min(regions_plotted.label.values) - 1e-4
+        cmax = np.max(regions_plotted.label.values)
+    else:
+        cmin = 1;cmax = 2
     cnorm = matplotlib.colors.Normalize(vmin=cmin, vmax=cmax)
     # set colors specific to labels
     regions_plotted["colors"] = list(
@@ -188,7 +193,6 @@ def plot_2d_coordinates(
     for ax0, ax1, axis in ax_list:
         ax = axs[ax0, ax1]
         # get bounds
-        shadow = np.rot90(img_data.sum(axis=atlas.axes_dict[axis]) > 0)
 
         # axis extents
         xlims, ylims = get_axis_bounds(atlas, axis=atlas.axes_dict[axis])
@@ -208,6 +212,7 @@ def plot_2d_coordinates(
         )
 
         # plot shadow background
+        shadow = np.rot90(brain_data.sum(axis=atlas.axes_dict[axis]) > 0)
         ax.matshow(
             shadow * 255,
             cmap=atlas.img_cmap,
@@ -218,8 +223,9 @@ def plot_2d_coordinates(
         )
 
         # plot image
-        img = [x_img, y_img, z_img][atlas.axes_dict[axis]]
-        ax.matshow(np.rot90(img ** 0.5), cmap=atlas.img_cmap, extent=extent, vmin=1e-4)
+        if img_ds is not None:
+            img = [x_img, y_img, z_img][atlas.axes_dict[axis]]
+            ax.matshow(np.rot90(img ** 0.5), cmap=atlas.img_cmap, extent=extent, vmin=1e-4)
         # plot labels
         labels = [x_lab, y_lab, z_lab][atlas.axes_dict[axis]]
         ax.matshow(

@@ -125,3 +125,5 @@ If you use this data, please cite the respecitve atlas papers:
   - update to use high resolution T2 images rather than same resolution as delineations
   - view other imaging structures in 3d view (skull, etc)
   - Take a 3d video (circle the structure - take screenshots every frame, tie them together)
+  - Embed the javascript directly (this won't allow for selecting regions though)
+  - plotting multiple types of 2d delineations at the same time

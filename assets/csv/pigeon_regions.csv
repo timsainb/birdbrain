@@ -21,9 +21,9 @@ Visual_wulst,1,HA,Visual_wulst
 Visual_wulst,2,HI - HD,Visual_wulst
 Visual_aos,1,nBOR,Visual_aos
 Visual_aos,2,Lentiformis mesencephali,Visual_aos
-VIsual_isthmic,1,Imc,VIsual_isthmic
-VIsual_isthmic,2,Ipc,VIsual_isthmic
-VIsual_isthmic,3,SLu,VIsual_isthmic
+Visual_isthmic,1,Imc,Visual_isthmic
+Visual_isthmic,2,Ipc,Visual_isthmic
+Visual_isthmic,3,SLu,Visual_isthmic
 Somatosensory_trigeminal,1,PrV,Somatosensory_trigeminal
 Somatosensory_trigeminal,2,Basalis,Somatosensory_trigeminal
 Somatosensory_wulst,1,HA,Somatosensory_wulst

@@ -47,8 +47,14 @@ class atlas(object):
             self.brain_labels.columns = ["label", "region", "type_"]
             dl.get_zebra_finch_data(password)
 
-        elif species == "pidgeon":
-            raise NotImplementedError("TODO")
+        elif species == "pigeon":
+
+            self.brain_labels = pd.read_csv(
+                "../../assets/csv/pigeon_regions.csv", index_col="region"
+            )
+            self.brain_labels.columns = ["label", "region", "type_"]
+            self.systems_delineations = dl.get_pigeon_data()
+
 
         elif species == "mustached_bat":
             raise NotImplementedError("TODO")
@@ -68,6 +74,10 @@ class atlas(object):
 
         # images from each type of scan, as well as transcribed locations ['type_', 'src', 'voxels']
         self.voxel_data = utils.get_voxel_data(img_files)
+
+
+        if species == 'pigeon':
+            dl.join_data_pigeon(self)
 
         # smooth the whole brain because the atlas is a bit noisy
         for img in smoothing:
