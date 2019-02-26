@@ -163,6 +163,17 @@ def plot_regions_3d(
             0,
             2,
         )
+
+        """addl_vol = k3d.volume(
+                                    vox_data,
+                                    color_range=[0, 1],
+                                    color_map=k3d.matplotlib_color_maps.Greys,
+                                    samples=128,
+                                    alpha_coef=10.0,
+                                    bounds=bounds,
+                                    compression_level=9,
+                                )
+                                addl_vols.append(addl_vol)"""
         
         # convert to vtk format
         vtk_dat = vox2vtk(vox_data, zero_point=zero_point)
@@ -184,7 +195,7 @@ def plot_regions_3d(
             (bounds[5] - bounds[4]) / zs,
         ]
 
-        print(np.shape(vox_data), region_bounds, np.sum(vox_data))
+        #print(np.shape(vox_data), region_bounds, np.sum(vox_data))
         # create mesh plot
         region = k3d.vtk_poly_data(
             vtk_dat.GetOutput(),

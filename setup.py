@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setup(
     name='birdbrain',
     packages=find_packages(),
-    version='0.1.1',
+    version='0.1.2',
     description='Tools for using the songbird brain atlas',
     long_description=long_description,
     long_description_content_type="text/markdown",
