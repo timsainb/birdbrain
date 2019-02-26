@@ -121,9 +121,9 @@ If you use this data, please cite the respecitve atlas papers:
 
 
 #### TODO:
-  - fix colormap error where adjacent nuclei will be labelled with the same color (e.g. NCM and field L)
   - update to use high resolution T2 images rather than same resolution as delineations
   - view other imaging structures in 3d view (skull, etc)
   - Take a 3d video (circle the structure - take screenshots every frame, tie them together)
   - Embed the javascript directly (this won't allow for selecting regions though)
-  - plotting multiple types of 2d delineations at the same time
+  - option to add 3d imaging volumes to 3d plot
+  

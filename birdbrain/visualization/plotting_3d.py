@@ -79,6 +79,7 @@ def plot_regions_3d(
     regions_to_plot=[["HVC", "Nuclei"]],
     downsample_pct=1,
     polygon_simplification=0,
+    additional_volumes = [],
     verbose=False,
 ):
     """ plots brain regions on top of brain
@@ -114,10 +115,39 @@ def plot_regions_3d(
         compression_level=9,
     )
 
-    # set atlas a region for y sinus
-    atlas.region_vox.loc["y_sinus", "coords_vox"] = zero_point
-    print(zero_point)
+    addl_vols = []
+    for vol in additional_volumes:
 
+        bg_image_data = atlas.voxel_data.loc[vol, "voxels"]
+        affine = atlas.voxel_data.loc[vol, "affine"]
+
+        xm,ym,zm = utils.vox_to_um([0,0,0], affine, atlas.um_mult, atlas.y_sinus_um_transform)
+        xma,yma,zma = utils.vox_to_um(list(np.shape(bg_image_data)), affine, atlas.um_mult, atlas.y_sinus_um_transform)
+
+        img_bg_extent = np.concatenate(np.array(
+            [
+                [xm, xma],
+                [ym, yma],
+                [zm, zma],
+            ]))
+
+        bg_image_data = np.uint8(utils.norm01(np.swapaxes(bg_image_data, 0, 2))*256)
+        addl_vol = k3d.volume(
+            bg_image_data,
+            color_range=[70, 100],
+            color_map=k3d.matplotlib_color_maps.Greys,
+            samples=128,
+            alpha_coef=10.0,
+            bounds=img_bg_extent,
+            compression_level=9,
+        )
+        addl_vols.append(addl_vol)
+
+
+    # set atlas a region for y sinus
+    atlas.region_vox.loc["y_sinus"] = ["y_sinus", "y_sinus", np.nan, np.nan, np.nan]
+    atlas.region_vox.loc["y_sinus", "coords_vox"] = zero_point
+    
     color_pal = atlas.label_cmap.colors
 
     # loop through regions
@@ -133,6 +163,7 @@ def plot_regions_3d(
             0,
             2,
         )
+        
         # convert to vtk format
         vtk_dat = vox2vtk(vox_data, zero_point=zero_point)
         # simplify polygon
@@ -152,6 +183,8 @@ def plot_regions_3d(
             0,
             (bounds[5] - bounds[4]) / zs,
         ]
+
+        print(np.shape(vox_data), region_bounds, np.sum(vox_data))
         # create mesh plot
         region = k3d.vtk_poly_data(
             vtk_dat.GetOutput(),
@@ -170,6 +203,9 @@ def plot_regions_3d(
 
     plot = k3d.plot(height=1024, background_color=0xFEFEFE)
     plot += brain_volume
+
+    for vol in addl_vols:
+        plot += vol
 
     # plot regions
     for region in regs:

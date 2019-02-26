@@ -189,7 +189,8 @@ def get_zebra_finch_data(password):
 
 
 def get_pigeon_data():
-
+    """The pigeon data delineations exist across multiple files - so this list contains info on which delineations should be joined together 
+    """
     SYSTEMS_DELINEATIONS = [
         ['Auditory1', [
             '../../data/raw/pigeon/Full_package/Auditory/auditory1.img'

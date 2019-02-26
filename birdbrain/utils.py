@@ -285,6 +285,9 @@ def get_shell(x):
 
     return shell
 
+def norm01(x):
+    return (x - np.min(x)) / (np.max(x)-np.min(x))
+
 
 def norm(x, x_low, x_high, rescale_low, rescale_high):
     return ((x - x_low) / (x_high - x_low)) * (rescale_high - rescale_low) + rescale_low
