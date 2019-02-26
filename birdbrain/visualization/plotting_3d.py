@@ -5,7 +5,7 @@ import scipy.ndimage
 from IPython.display import display
 from ipywidgets import widgets
 from birdbrain import utils
-
+import time
 
 import k3d
 import vtk
@@ -81,6 +81,7 @@ def plot_regions_3d(
     polygon_simplification=0,
     additional_volumes = [],
     verbose=False,
+    height=1024
 ):
     """ plots brain regions on top of brain
     """
@@ -214,7 +215,7 @@ def plot_regions_3d(
         origins, vectors, colors=colors, line_width=100, use_head=True, head_size=1000
     )
 
-    plot = k3d.plot(height=1024, background_color=0xFEFEFE)
+    plot = k3d.plot(height=height, background_color=0xFEFEFE)
     plot += brain_volume
 
     for vol in addl_vols:
@@ -364,3 +365,52 @@ def widget_controllers(atlas, vec, plot, bounds, regions_to_plot):
 
     region_dropdown.observe(reg_dd)
     display(region_dropdown)
+
+
+def rotate_plot(plot, hide_vectors = True, n_frames = 10, fr = 5, nrot = 1, radius = 8000):
+    #screenshots = []
+    vector_locs = np.where([type(i) == k3d.objects.Vectors for i in plot.objects])[0]
+    # hide vectors
+    if hide_vectors:
+        for vec_i in vector_locs:
+            plot.objects[vec_i].visible = False
+        pg = False
+        if plot.grid_visible == True:
+            pg=True
+            plot.grid_visible = False
+
+    # make circle
+    camera_loc = copy.deepcopy(plot.camera)
+    for rad in tqdm(np.linspace(0, 2*np.pi*nrot, n_frames*nrot), leave=False):
+        # move the camera
+        plot.camera = list(np.array([3*radius*np.sin(rad),3*radius*np.cos(rad), 0]) + np.array(camera_loc[3:6])) + camera_loc[3:6] + [0,0,1]               
+        time.sleep(1/fr)
+        """
+        # take a screenshot
+        plot.fetch_screenshot(only_canvas=False)
+        img = b64decode(plot.screenshot)  
+        img = io.BytesIO(img)
+        img = mpimg.imread(img, format='PNG')
+        screenshots.append(img)
+        """
+    # show vectors
+    if hide_vectors:
+        for vec_i in vector_locs:
+            plot.objects[vec_i].visible = True
+        if pg:
+            plot.grid_visible=True
+        
+    """
+    fig, ax = plt.subplots(nrows=1,ncols=1, figsize=(15,15));
+    ax.axis('off')
+    plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, 
+            hspace = 0, wspace = 0)
+    ims = []
+    for i in tqdm(np.arange(n_frames)):
+        im = plt.imshow(screenshots[i], animated=True);
+        ims.append([im]);
+    ani = animation.ArtistAnimation(fig, ims, interval=1000, blit=True,
+                                    repeat_delay=1000);
+    plt.close()
+    HTML(ani.to_html5_video())
+    """

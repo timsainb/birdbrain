@@ -7,9 +7,16 @@ birdbrain
 
 Tim Sainburg & Marvin Thielk
 
-Work in progress.
+This is a small library for viewing the [songbird/bat brain atlas'](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) (Poirier et al., 2008; De Groof et al., 2016; Vellema et al., 2011; Gunturken et al., 2013; Washington et al., 2018). It currently has examples of European starling, Canary, Zebra finch, Mustached bat, and Pigeon brain atlas'. 
 
-This is a small library for viewing the songbird brain atlas' at https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/
+The package can do things like:
+
+- nuclei localization relative to a set stereotaxic reference point (e.g. y-sinus in starlings)
+- 3d printing an STL of the brains
+- Plotting recording locations in 2d and 3d on imaging data. 
+- Creating visualizations / movies videos of nuclei of interest
+
+There is an [online interactive demo](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) which should take no Python experience to use (just running cells in a Jupyter notebook). The demo uses Binder, which is a allows you to run a Jupyter notebook in a Docker environment online. It can take a bit to load, but has the benefit of not requiring you to install anything. If you want to install this software locally, the package is pip installable however. 
 
 ![screenshot](assets/img/3d_screenshot.png)
 
@@ -28,14 +35,6 @@ To install the python package:
 
 ##### Additional requirements
 To be added...
-
-
-#### References
-- [Brain atlas](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) for starling, canary, zebra finch, pigeon, tilapia, and mustached bat brain atlas'
-- [VTK python](https://pypi.org/project/vtk/) for 3d graphics 
-- [K3D tools](https://github.com/K3D-tools/K3D-jupyter) for 3d visualization
-- [nibabel](http://nipy.org/nibabel/) For reading/manipulating neuroimaging data (.img files)
-- [cookiecutter data science](https://drivendata.github.io/cookiecutter-data-science/) project template was used
 
 ### Citations
 
@@ -118,6 +117,13 @@ If you use this data, please cite the respecitve atlas papers:
 }
 
 ```
+
+#### References
+- [Brain atlas](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) for starling, canary, zebra finch, pigeon, tilapia, and mustached bat brain atlas'
+- [VTK python](https://pypi.org/project/vtk/) for 3d graphics 
+- [K3D tools](https://github.com/K3D-tools/K3D-jupyter) for 3d visualization
+- [nibabel](http://nipy.org/nibabel/) For reading/manipulating neuroimaging data (.img files)
+- [cookiecutter data science](https://drivendata.github.io/cookiecutter-data-science/) project template was used
 
 
 #### TODO:
