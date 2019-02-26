@@ -57,7 +57,7 @@ class atlas(object):
 
 
         elif species == "mustached_bat":
-            raise NotImplementedError("TODO")
+            self.brain_labels = dl.get_mustached_bat_data()
 
         # how axes labels relate to affine transformed data in voxels
         self.axes_dict = {
@@ -68,9 +68,14 @@ class atlas(object):
         self.inverse_axes_dict = inverse_dict(self.axes_dict)
 
         # path of images
-        img_files = glob(os.path.join(delin_path, "*.img")) + glob(
-            os.path.join(dset_dir, "*.img")
-        )
+        if species == 'mustached_bat':
+            img_files = glob(os.path.join(delin_path, "*.nii")) + glob(
+                os.path.join(dset_dir, "*.nii")
+            )
+        else:
+            img_files = glob(os.path.join(delin_path, "*.img")) + glob(
+                os.path.join(dset_dir, "*.img")
+            )
 
         # images from each type of scan, as well as transcribed locations ['type_', 'src', 'voxels']
         self.voxel_data = utils.get_voxel_data(img_files)

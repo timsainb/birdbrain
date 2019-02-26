@@ -10,6 +10,8 @@ import shutil
 import os
 import subprocess
 import pandas as pd
+import xml.etree.ElementTree
+
 
 def execute(cmd):
     """excecute a command in subprocess
@@ -325,3 +327,67 @@ def join_data_pigeon(pigeon_atlas):
     pigeon_atlas.voxel_data = pigeon_atlas.voxel_data[np.array([i not in new_labs for i in pigeon_atlas.voxel_data.index])]
     # join with atlas
     pigeon_atlas.voxel_data = pd.concat([pigeon_atlas.voxel_data, new_delineations])
+
+def get_mustached_bat_data():
+    def xml_to_pandas_brainregions(xml_loc):
+        """ gets a pandas dataframe of labels from the brainregions xml
+        """
+        # load xml
+        e = xml.etree.ElementTree.parse(xml_loc).getroot()
+
+        # get brain_label information
+        brain_labels = pd.DataFrame(columns = ['label', 'region', 'type_'])
+        for area in e.getchildren():
+            (_, abbrev), (_, value), (_, _), (_, name) = area.items()
+            brain_labels.loc[len(brain_labels)] = [int(value), abbrev, 'Mustached_bat_delineations']
+        brain_labels.index = brain_labels.region
+        brain_labels['label'] = brain_labels['label'].astype('int')
+        return brain_labels
+
+    if len(glob("../../data/processed/mustached_bat/delineations/*.nii")) > 1:
+        print("Data already download")
+        return xml_to_pandas_brainregions('../../data/processed/mustached_bat/delineations/Mustached_Bat_Delineations.atlas.xml')
+    
+    # image locations to save to 
+    dl_output = "../../data/raw/mustached_bat/"
+    img_output = "../../data/processed/mustached_bat/"
+    # make sure directories all exist
+    ensure_dir(dl_output)
+    ensure_dir(img_output)
+    ensure_dir(img_output + "delineations/")
+    data_url = 'http://uahost.uantwerpen.be/bioimaginglab/Bat.zip'
+    zip_loc = zip_loc = dl_output + "Bat.zip"
+    # download data
+    tqdm_download(data_url, zip_loc)
+    # extract the data
+    patoolib.extract_archive(zip_loc, outdir=dl_output)
+    xml_loc = '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/Mustached_Bat_Delineations.atlas.xml'
+    shutil.copy(xml_loc, img_output + "delineations/" + os.path.basename(xml_loc))
+    xml_copy = img_output + "delineations/" + os.path.basename(xml_loc)
+    brain_labels = xml_to_pandas_brainregions(xml_copy)
+    
+    # image files to move
+    imgs = [
+    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/ad.nii',
+    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/b0.nii',
+    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/col_fa.nii',
+    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/fa.nii',
+    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/md.nii',
+    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/rd.nii',
+    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/Skull_CT.nii',
+    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/T2w_3D_RARE.nii',
+    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/tdi_dti_color.nii',
+    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/tdi_dti_grey.nii',
+    ]
+    # copy all the images
+    for img in imgs:
+        shutil.copy(img, img_output + os.path.basename(img))
+
+    # copy all the images into delineations locations
+    img = '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/Mustached_Bat_Delineations.nii'
+    shutil.copy(img, img_output + "delineations/" + os.path.basename(img))
+    # copy all the images into delineations locations
+    img = '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/mask.nii'
+
+    shutil.copy(img, img_output + "delineations/" + 'Brain.nii')
+    return brain_labels

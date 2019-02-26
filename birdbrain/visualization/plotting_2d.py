@@ -166,7 +166,6 @@ def plot_2d_coordinates(
         y_img = bg_image_data[:, point_in_voxels_image[1], :].squeeze()
         z_img = bg_image_data[:, :, point_in_voxels_image[2]].squeeze()
 
-        print(np.sum(x_img), np.sum(y_img), np.sum(z_img))
 
         xm,ym,zm = vox_to_um([0,0,0], affine, atlas.um_mult, atlas.y_sinus_um_transform)
         xma, yma, zma = vox_to_um(list(np.shape(bg_image_data)), affine, atlas.um_mult, atlas.y_sinus_um_transform)
@@ -203,7 +202,8 @@ def plot_2d_coordinates(
         label_data[r2p]['x_lab'] = x_lab
         label_data[r2p]['y_lab'] = y_lab
         label_data[r2p]['z_lab'] = z_lab
-        label_data[r2p]['unique_labels'] = unique_labels
+        label_data[r2p]['unique_labels'] = unique_labels        
+
 
     # subset brain_labels dataframe for only the labels shown here
     regions_plotted = pd.concat([
@@ -212,7 +212,7 @@ def plot_2d_coordinates(
             & ([label in label_data[r2p]['unique_labels'] for label in atlas.brain_labels.label.values])
         ]
          for r2p in regions_to_plot])
-    
+
     regions_plotted.index = np.arange(len(regions_plotted))
     # reset values of xlab, ylab, zlab, and regions_plotted
     colors_plotted = 1 # the number of colors plotted so far
