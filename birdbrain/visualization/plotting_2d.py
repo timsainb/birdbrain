@@ -3,7 +3,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from birdbrain.utils import vox_to_um, um_to_vox, get_axis_bounds, inverse_dict
-
+import pandas as pd
 
 def plt_box_bg(background_dims, ax, extent, box_size=20, mn=0.2, mx=0.3):
     """ plots a box background for showing image transparency
@@ -107,8 +107,9 @@ def plot_2d_coordinates(
     atlas,
     point_in_voxels=None,
     point_in_um=None,
-    regions_to_plot="Brainregions",
-    img_ds="T2",
+    regions_to_plot=["Brainregions"],
+    brain_masked_image="T2",
+    bg_image = None,
     region_alpha=0.25,
     line_alpha=0.5,
     zoom=6,
@@ -141,39 +142,96 @@ def plot_2d_coordinates(
     print({inverse_dict(atlas.axes_dict)[i]: int(point_in_um[i]) for i in range(3)})
 
     # the type of image to plot
-    label_data = atlas.voxel_data.loc[regions_to_plot, "voxels"]
+    label_data = {r2p:{'voxels': atlas.voxel_data.loc[r2p, "voxels"]} for r2p in regions_to_plot}
     brain_data = atlas.voxel_data.loc["Brain", "voxels"]
 
     # if no image data is provided, do not plot it
-    if img_ds is not None:
-        img_data = atlas.voxel_data.loc[img_ds, "voxels"]
-        # set voxels where there is no brain to 0
-        img_data[brain_data == 0] = 0
+    if bg_image is not None:
 
         # get image data
-        x_img = img_data[point_in_voxels[0], :, :].squeeze()
-        y_img = img_data[:, point_in_voxels[1], :].squeeze()
-        z_img = img_data[:, :, point_in_voxels[2]].squeeze()
+        bg_image_data = atlas.voxel_data.loc[bg_image, "voxels"]
+        affine = atlas.voxel_data.loc[bg_image, "affine"]
+
+        #convert point in um into voxel coordinates for this data type
+        point_in_voxels_image = um_to_vox(
+                point_in_um,
+                affine,
+                atlas.um_mult,
+                atlas.y_sinus_um_transform,
+            )
+
+        print(point_in_voxels)
+
+        x_img = bg_image_data[point_in_voxels_image[0], :, :].squeeze()
+        y_img = bg_image_data[:, point_in_voxels_image[1], :].squeeze()
+        z_img = bg_image_data[:, :, point_in_voxels_image[2]].squeeze()
+
+        print(np.sum(x_img), np.sum(y_img), np.sum(z_img))
+
+        xm,ym,zm = vox_to_um([0,0,0], affine, atlas.um_mult, atlas.y_sinus_um_transform)
+        xma, yma, zma = vox_to_um(list(np.shape(bg_image_data)), affine, atlas.um_mult, atlas.y_sinus_um_transform)
+
+        img_bg_extent = np.array(
+            [
+                [xm, xma],
+                [ym, yma],
+                [zm, zma],
+            ])
+
+
+    if brain_masked_image is not None:
+        brain_masked_img_data = atlas.voxel_data.loc[brain_masked_image, "voxels"]
+        # set voxels where there is no brain to 0
+        brain_masked_img_data[brain_data == 0] = 0
+
+        # get image data
+        x_img_masked = brain_masked_img_data[point_in_voxels[0], :, :].squeeze()
+        y_img_masked = brain_masked_img_data[:, point_in_voxels[1], :].squeeze()
+        z_img_masked = brain_masked_img_data[:, :, point_in_voxels[2]].squeeze()
 
     # get label data
-    x_lab = label_data[point_in_voxels[0], :, :].squeeze()
-    y_lab = label_data[:, point_in_voxels[1], :].squeeze()
-    z_lab = label_data[:, :, point_in_voxels[2]].squeeze()
+    for r2p in regions_to_plot:
+        x_lab = label_data[r2p]['voxels'][point_in_voxels[0], :, :].squeeze()
+        y_lab = label_data[r2p]['voxels'][:, point_in_voxels[1], :].squeeze()
+        z_lab = label_data[r2p]['voxels'][:, :, point_in_voxels[2]].squeeze()
 
-    # subset labels dataframe for only the ones appearing here
-    unique_labels = np.unique(
-        list(x_lab.flatten()) + list(y_lab.flatten()) + list(z_lab.flatten())
-    )
+        # subset labels dataframe for only the ones appearing here
+        unique_labels = np.unique(
+            list(x_lab.flatten()) + list(y_lab.flatten()) + list(z_lab.flatten())
+        )
+
+        label_data[r2p]['x_lab'] = x_lab
+        label_data[r2p]['y_lab'] = y_lab
+        label_data[r2p]['z_lab'] = z_lab
+        label_data[r2p]['unique_labels'] = unique_labels
 
     # subset brain_labels dataframe for only the labels shown here
-    regions_plotted = atlas.brain_labels[
-        (atlas.brain_labels.type_ == regions_to_plot)
-        & ([label in unique_labels for label in atlas.brain_labels.label.values])
-    ]
+    regions_plotted = pd.concat([
+        atlas.brain_labels[
+            (atlas.brain_labels.type_ == r2p)
+            & ([label in label_data[r2p]['unique_labels'] for label in atlas.brain_labels.label.values])
+        ]
+         for r2p in regions_to_plot])
+    
+    regions_plotted.index = np.arange(len(regions_plotted))
+    # reset values of xlab, ylab, zlab, and regions_plotted
+    colors_plotted = 1 # the number of colors plotted so far
+    for r2p in regions_to_plot:
+        # get regions plotted in this r2p
+        regions = regions_plotted[regions_plotted.type_.values == r2p].region.values
+        # for each of those regions, change the values of x_lab, y_lab, z_lab 
+        for region in regions:
+            reg_lab = regions_plotted[regions_plotted.region.values == region].label.values[0]
+            label_data[r2p]['x_lab'][label_data[r2p]['x_lab'] == reg_lab] = colors_plotted
+            # change the value of regions_plotted.label
+            regions_plotted.loc[regions_plotted.region.values == region, 'label'] = colors_plotted
+            # update to next color
+            colors_plotted +=1
+        
     # normalize colors to regions being plotted
     if len(regions_plotted) > 0:
-        cmin = np.min(regions_plotted.label.values) - 1e-4
-        cmax = np.max(regions_plotted.label.values)
+        cmin = np.min(1) - 1e-4
+        cmax = len(regions_plotted.label.values)
     else:
         cmin = 1;cmax = 2
     cnorm = matplotlib.colors.Normalize(vmin=cmin, vmax=cmax)
@@ -197,8 +255,21 @@ def plot_2d_coordinates(
         # axis extents
         xlims, ylims = get_axis_bounds(atlas, axis=atlas.axes_dict[axis])
 
-        # plot grid background
-        plot_box_bg(ax, np.concatenate([xlims, ylims]))
+        
+
+        # plot background image
+        if bg_image is not None:
+            img_bg_extent_ax = np.concatenate(img_bg_extent[np.arange(3) != atlas.axes_dict[axis]])
+            xlims = img_bg_extent_ax[:2]
+            ylims = img_bg_extent_ax[2:]
+
+            img = [x_img, y_img, z_img][atlas.axes_dict[axis]]
+            if np.sum(img) > 0:
+                ax.matshow(np.rot90(img ** 0.5), cmap=plt.cm.bone, extent=img_bg_extent_ax)
+
+        else:
+            # plot grid background
+            plot_box_bg(ax, np.concatenate([xlims, ylims]))
 
         # get extent from voxels
         extent = np.concatenate(
@@ -222,20 +293,25 @@ def plot_2d_coordinates(
             alpha=0.5,
         )
 
-        # plot image
-        if img_ds is not None:
-            img = [x_img, y_img, z_img][atlas.axes_dict[axis]]
-            ax.matshow(np.rot90(img ** 0.5), cmap=atlas.img_cmap, extent=extent, vmin=1e-4)
+        # plot brain masked image
+        if brain_masked_image is not None:
+            img = [x_img_masked, y_img_masked, z_img_masked][atlas.axes_dict[axis]]
+            if np.max(img) >0:
+                ax.matshow(np.rot90(img ** 0.5), cmap=atlas.img_cmap, extent=extent, vmin=1e-4)
+        
         # plot labels
-        labels = [x_lab, y_lab, z_lab][atlas.axes_dict[axis]]
-        ax.matshow(
-            np.rot90(labels),
-            cmap=atlas.label_cmap,
-            extent=extent,
-            vmin=cmin,
-            vmax=cmax,
-            alpha=region_alpha,
-        )
+        
+        for r2p in regions_to_plot:
+            labels = [label_data[r2p]['x_lab'], label_data[r2p]['y_lab'], label_data[r2p]['z_lab']][atlas.axes_dict[axis]]
+            ax.matshow(
+                np.rot90(labels),
+                cmap=atlas.label_cmap,
+                extent=extent,
+                vmin=cmin,
+                vmax=cmax,
+                alpha=region_alpha,
+            )
+            colors_plotted += np.sum(regions_plotted.type_.values == r2p)
 
         ax.set_xlim(xlims)
         ax.set_ylim(ylims)

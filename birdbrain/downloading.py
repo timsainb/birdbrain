@@ -135,14 +135,14 @@ def get_starling_data():
     for img_file in np.concatenate(
         [glob(dl_output + "ATLAS_starling/*." + ed) for ed in ["img", "hdr"]]
     ):
-        shutil.move(img_file, img_output + os.path.basename(img_file))
+        shutil.copy(img_file, img_output + os.path.basename(img_file))
     for img_file in np.concatenate(
         [
             glob(dl_output + "ATLAS_starling/delineations/*." + ed)
             for ed in ["img", "hdr", "txt"]
         ]
     ):
-        shutil.move(img_file, img_output + "delineations/" + os.path.basename(img_file))
+        shutil.copy(img_file, img_output + "delineations/" + os.path.basename(img_file))
 
 
 def get_zebra_finch_data(password):
@@ -177,14 +177,14 @@ def get_zebra_finch_data(password):
     nuc_del_hdr = "../../data/raw/zebra_finch/atlas/nuclei_delineations.hdr"
 
     # move atlas files
-    shutil.move(atlas_img, img_output + os.path.basename(atlas_img))
-    shutil.move(atlas_hdr, img_output + os.path.basename(atlas_hdr))
+    shutil.copy(atlas_img, img_output + os.path.basename(atlas_img))
+    shutil.copy(atlas_hdr, img_output + os.path.basename(atlas_hdr))
     # move brain delineation files
-    shutil.move(brain_del_img, img_output + "delineations/Brain.img")
-    shutil.move(brain_del_hdr, img_output + "delineations/Brain.hdr")
+    shutil.copy(brain_del_img, img_output + "delineations/Brain.img")
+    shutil.copy(brain_del_hdr, img_output + "delineations/Brain.hdr")
     # move brain delineation files
-    shutil.move(nuc_del_img, img_output + "delineations/Nuclei.img")
-    shutil.move(nuc_del_hdr, img_output + "delineations/Nuclei.hdr")
+    shutil.copy(nuc_del_img, img_output + "delineations/Nuclei.img")
+    shutil.copy(nuc_del_hdr, img_output + "delineations/Nuclei.hdr")
 
 
 
@@ -234,6 +234,15 @@ def get_pigeon_data():
         ['Brain', [
             '../../data/raw/pigeon/Full_package/Brainsurface/brainsurface_left.img',
             '../../data/raw/pigeon/Full_package/Brainsurface/brainsurface_right.img'
+        ]],
+        ['Nucleus_taeniae', [
+            '../../data/raw/pigeon/Full_package/Olfactory/Nucleus-Taeniae.img',
+        ]],
+        ['Visual_tectofugal', [
+            '../../data/raw/pigeon/Full_package/Visual/Tectofugal/entopallium.img',
+            '../../data/raw/pigeon/Full_package/Visual/Tectofugal/rotundus.img',
+            '../../data/raw/pigeon/Full_package/Visual/Tectofugal/Tectum-left.img',
+            '../../data/raw/pigeon/Full_package/Visual/Tectofugal/Tectum-right.img',
         ]]
     ]
 
@@ -282,7 +291,7 @@ def get_pigeon_data():
     ]
 
     for img_file in img_files:
-            shutil.move(img_file, img_output + os.path.basename(img_file))
+            shutil.copy(img_file, img_output + os.path.basename(img_file))
 
 
     for del_file in all_delineation_files:
