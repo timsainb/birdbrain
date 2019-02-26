@@ -25,12 +25,12 @@ def vox2vtk(voxels, zero_point=None):
     dataImporter.SetNumberOfScalarComponents(1)
 
     # whole extent needs to be relative to original
-    dataImporter.SetDataExtent(0, xs - 1, 0, ys - 1, 0, zs - 1)
+    dataImporter.SetDataExtent(0, zs - 1, 0, ys - 1, 0, xs - 1)
     if zero_point is None:
         dataImporter.SetWholeExtent(0, xs - 1, 0, ys - 1, 0, zs - 1)
     else:
         dataImporter.SetWholeExtent(
-            -zero_point[0], xs - 1, -zero_point[1], ys - 1, -zero_point[2], zs - 1
+            -zero_point[0], zs - 1, -zero_point[1], ys - 1, -zero_point[2], xs - 1
         )
 
     # convert to mesh
@@ -155,10 +155,11 @@ def plot_regions_3d(
     for ri, (reg, type_) in enumerate(tqdm(regions_to_plot, leave=False)):
         color = (np.array(color_pal[ri % len(color_pal)]) * 255).astype("int")
         # get voxel_data
+        lab = atlas.brain_labels[atlas.brain_labels.type_ == type_].loc[reg, "label"]
         vox_data = np.swapaxes(
             np.array(
                 atlas.voxel_data.loc[type_, "voxels"]
-                == atlas.brain_labels.loc[reg, "label"]
+                == lab
             ),
             0,
             2,
@@ -177,6 +178,7 @@ def plot_regions_3d(
         
         # convert to vtk format
         vtk_dat = vox2vtk(vox_data, zero_point=zero_point)
+
         # simplify polygon
         if polygon_simplification > 0:
             vtk_dat = vtk_reduce(
@@ -188,11 +190,11 @@ def plot_regions_3d(
         xs, ys, zs = vox_data.shape
         region_bounds = [
             0,
-            (bounds[1] - bounds[0]) / xs,
+            (bounds[1] - bounds[0]) / zs,
             0,
             (bounds[3] - bounds[2]) / ys,
             0,
-            (bounds[5] - bounds[4]) / zs,
+            (bounds[5] - bounds[4]) / xs,
         ]
 
         #print(np.shape(vox_data), region_bounds, np.sum(vox_data))

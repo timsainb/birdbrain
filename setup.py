@@ -18,9 +18,10 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         'Framework :: IPython',
-        'Intended Audience :: Scientists',
         'Intended Audience :: Science/Research',
+        'Topic :: Education',
         'Topic :: Multimedia :: Graphics',
+        'Topic :: Scientific/Engineering :: Visualization',
     ],
     install_requires= [
         'ipywidgets>=7.0.1',

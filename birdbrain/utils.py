@@ -110,6 +110,10 @@ def get_region_voxels(atlas, switch_lateralization=False, verbose=False):
 
         # locate the structure
         reg_mask = atlas.voxel_data.loc[type_, "voxels"] == nucleus_ID
+
+        if np.sum(reg_mask) == 0:
+            continue
+            
         # boundaries of coordinates
         xmin, xmax = np.where(reg_mask.sum(axis=1).sum(axis=1) > 0)[0][
             [0, -1]
