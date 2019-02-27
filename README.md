@@ -7,7 +7,7 @@ birdbrain
 
 Tim Sainburg & Marvin Thielk
 
-This is a small library for viewing the [songbird/bat brain atlas'](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) (Poirier et al., 2008; De Groof et al., 2016; Vellema et al., 2011; Gunturken et al., 2013; Washington et al., 2018). It currently has examples of European starling, Canary, Zebra finch, Mustached bat, and Pigeon brain atlas'. 
+This is a small library for viewing the [songbird/bat brain atlases](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) (Poirier et al., 2008; De Groof et al., 2016; Vellema et al., 2011; Gunturken et al., 2013; Washington et al., 2018). It currently has examples of European starling, Canary, Zebra finch, Mustached bat, and Pigeon brain atlases. 
 
 The package can do things like:
 
@@ -16,15 +16,19 @@ The package can do things like:
 - Plotting recording locations in 2d and 3d on imaging data. 
 - Creating visualizations / movies videos of nuclei of interest
 
-There is an [online interactive demo](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) which should take no Python experience to use (just running cells in a Jupyter notebook). The demo uses Binder, which is a allows you to run a Jupyter notebook in a Docker environment online. It can take a bit to load, but has the benefit of not requiring you to install anything. If you want to install this software locally, the package is pip installable however. 
+There is an [online interactive demo](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) which should take no Python experience to use (just running cells in a Jupyter notebook). The demo uses Binder, which allows you to run a Jupyter notebook in a Docker environment online. It can take a few minutes to load, but has the benefit of not requiring you to install anything. If you want to install this software locally, the package is pip installable however (see below). 
 
-![skull](assets/img/starling_skull_rotation.gif)
+<div style="text-align:center">
+<p align="center">
+  <img src="assets/img/starling_skull_rotation.gif", width="45%">
+  <img src="assets/img/field_l.png", width="45%">
+</p>
+<p align="center">
+  <img src="assets/img/navigation-example.gif", width="85%">
+</p>
+</div>
 
-![screenshot](assets/img/3d_screenshot.png)
-
-![field_l](assets/img/field_l.png)
-
-### Online demo!
+### Online demo:
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb)
 
 ### Usage Instructions
@@ -121,7 +125,7 @@ If you use this data, please cite the respecitve atlas papers:
 ```
 
 #### References
-- [Brain atlas](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) for starling, canary, zebra finch, pigeon, tilapia, and mustached bat brain atlas'
+- [Brain atlas](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) for starling, canary, zebra finch, pigeon, tilapia, and mustached bat brain atlases
 - [VTK python](https://pypi.org/project/vtk/) for 3d graphics 
 - [K3D tools](https://github.com/K3D-tools/K3D-jupyter) for 3d visualization
 - [nibabel](http://nipy.org/nibabel/) For reading/manipulating neuroimaging data (.img files)

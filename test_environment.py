@@ -30,4 +30,3 @@ def test_make_atlas():
     plot_transection(starling_atlas, regions_to_plot='Brainregions', n_slice = 8);
 
 
-

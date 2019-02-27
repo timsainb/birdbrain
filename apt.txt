@@ -2,3 +2,4 @@ ffmpeg
 libvtk7-dev
 xvfb
 p7zip-full
+unrar
