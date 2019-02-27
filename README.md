@@ -1,35 +1,72 @@
-[![Build Status](https://travis-ci.org/timsainb/birdbrain.svg?branch=master)](https://travis-ci.org/timsainb/birdbrain)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb)
 
+    │                         generated with `pip freeze > requirements.txt`
+    │
+    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
+    ├── src                <- Source code for use in this project.
+    │   ├── __init__.py    <- Makes src a Python module
+    │   │
+    │   ├── data           <- Scripts to download or generate data
+    │   │   └── make_dataset.py
+    │   │
+    │   ├── features       <- Scripts to turn raw data into features for modeling
+    │   │   └── build_features.py
+    │   │
+    │   ├── models         <- Scripts to train models and then use trained models to make
+    │   │   │                 predictions
+    │   │   ├── predict_model.py
+    │   │   └── train_model.py
+    │   │
+    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
+    │       └── visualize.py
+    │
+    └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
 
-birdbrain
-==============================
+### Usage Instructions
+You can either view the data directly from the [binder notebooks](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) via your internet browser (reccomeded at first), or you can install and run this package locally on your own computer. 
 
-Tim Sainburg & Marvin Thielk
+--------
 
-This is a small library for viewing the [songbird/bat brain atlas'](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) (Poirier et al., 2008; De Groof et al., 2016; Vellema et al., 2011; Gunturken et al., 2013; Washington et al., 2018). It currently has examples of European starling, Canary, Zebra finch, Mustached bat, and Pigeon brain atlas'. 
+<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
 The package can do things like:
-
 - nuclei localization relative to a set stereotaxic reference point (e.g. y-sinus in starlings)
 - 3d printing an STL of the brains
 - Plotting recording locations in 2d and 3d on imaging data. 
 - Creating visualizations / movies videos of nuclei of interest
-
 There is an [online interactive demo](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) which should take no Python experience to use (just running cells in a Jupyter notebook). The demo uses Binder, which is a allows you to run a Jupyter notebook in a Docker environment online. It can take a bit to load, but has the benefit of not requiring you to install anything. If you want to install this software locally, the package is pip installable however. 
-
-![screenshot](assets/img/3d_screenshot.png)
-
 ![field_l](assets/img/field_l.png)
-
+    │                         generated with `pip freeze > requirements.txt`
+    │
+    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
+    ├── src                <- Source code for use in this project.
+    │   ├── __init__.py    <- Makes src a Python module
+    │   │
+    │   ├── data           <- Scripts to download or generate data
+    │   │   └── make_dataset.py
+    │   │
+    │   ├── features       <- Scripts to turn raw data into features for modeling
+    │   │   └── build_features.py
+    │   │
+    │   ├── models         <- Scripts to train models and then use trained models to make
+    │   │   │                 predictions
+    │   │   ├── predict_model.py
+    │   │   └── train_model.py
+    │   │
+    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
+    │       └── visualize.py
+    │
+    └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
 ### Online demo!
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb)
 
 ### Usage Instructions
 You can either view the data directly from the [binder notebooks](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) via your internet browser (reccomeded at first), or you can install and run this package locally on your own computer. 
 
+--------
 ### Installation
 To install the python package:
+
+<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
 `pip install birdbrain`
 
