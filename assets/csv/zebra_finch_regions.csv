@@ -1,0 +1,14 @@
+region,label,region,type_
+L,1,L,Nuclei
+HVC,2,HVC,Nuclei
+X,3,X,Nuclei
+RA,4,RA,Nuclei
+E,5,E,Nuclei
+LMAN,6,LMAN,Nuclei
+MLd,7,MLd,Nuclei
+DLM,8,DLM,Nuclei
+Ov,9,Ov,Nuclei
+Olfactory_bulb,10,Olfactory_bulb,Nuclei
+nXIIts,11,nXIIts,Nuclei
+Rt,12,Rt,Nuclei
+TeO,13,TeO,Nuclei

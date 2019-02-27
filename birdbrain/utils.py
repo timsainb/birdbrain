@@ -1,6 +1,10 @@
 import numpy as np
 import pandas as pd
 
+pd.options.mode.chained_assignment = None
+
+import os
+
 import nibabel
 from tqdm.autonotebook import tqdm
 import scipy.ndimage
@@ -8,6 +12,27 @@ import scipy.ndimage
 # for transforming via the affine to um
 from nipy.algorithms.registration.affine import inverse_affine
 from nibabel.affines import apply_affine
+
+
+def vox_to_um(vox, affine, um_mult, um_transform):
+    """ translates from voxels to um
+    """
+    um = apply_affine(affine, vox)
+    um = um * um_mult
+    um = um - um_transform
+    return um
+
+
+def um_to_vox(um, affine, um_mult, um_transform):
+    """ translate from um to voxels
+    """
+    inv_affine = inverse_affine(affine)
+    # um is shifted in the direction of the transform
+    um = np.array(um) + np.array(um_transform)
+    # back to original units
+    um = um / um_mult
+    vox = apply_affine(inv_affine, um).round().astype(int)
+    return vox
 
 
 def get_voxel_data(img_files):
@@ -18,9 +43,33 @@ def get_voxel_data(img_files):
     for data_file in img_files:
         fn = data_file.split("/")[-1][:-4]
         dta = nibabel.load(data_file)
-        image_data.loc[len(image_data)] = [fn, data_file, dta.get_data(), dta.affine]
+        affine, voxels = affine_transform_voxels(dta.affine, dta.get_data())
+        # voxels = np.swapaxes(voxels, 0,2)
+        image_data.loc[len(image_data)] = [fn.capitalize(), data_file, np.squeeze(voxels), affine]
     image_data = image_data.set_index(image_data.type_.values)
     return image_data
+
+
+def affine_transform_voxels(affine, voxels):
+    """ rearrange voxels and affine based upon sign and ordering
+    so that dimensions of voxels and coordinate space remain consistent
+    """
+    # get axes that are rearranged
+    flip_axes = np.where(affine[:3, :3] != 0)[1]
+    # rearrange voxel axes accordingly
+    voxels_axis_reordered = np.moveaxis(voxels, [0, 1, 2], flip_axes)
+    # rearrange affine accordingly
+    affine_flipped = affine[np.array(list(flip_axes) + [3])]
+    # see which signs are flipped
+    diag_sign = np.sign(np.diagonal(affine_flipped)).astype("int")
+    # flip voxels so all signs are positive
+    voxels_axis_reordered = voxels_axis_reordered[
+        :: diag_sign[0], :: diag_sign[1], :: diag_sign[2]
+    ]
+    # flip signs back
+    affine_flipped[:3, :3] = np.abs(affine_flipped[:3, :3])
+    affine_flipped[:, 3] = diag_sign * affine_flipped[:, 3]
+    return affine_flipped, voxels_axis_reordered
 
 
 def get_region_voxels(atlas, switch_lateralization=False, verbose=False):
@@ -36,8 +85,8 @@ def get_region_voxels(atlas, switch_lateralization=False, verbose=False):
 
     # get the location of the y sinus in voxels
     y_sinus_vox = um_to_vox(
+        [0, 0, 0],
         atlas.voxel_data.loc["Brain", "affine"],
-        {"medial-lateral": 0, "posterior-anterior": 0, "ventral-dorsal": 0},
         atlas.um_mult,
         atlas.y_sinus_um_transform,
     )
@@ -61,6 +110,10 @@ def get_region_voxels(atlas, switch_lateralization=False, verbose=False):
 
         # locate the structure
         reg_mask = atlas.voxel_data.loc[type_, "voxels"] == nucleus_ID
+
+        if np.sum(reg_mask) == 0:
+            continue
+            
         # boundaries of coordinates
         xmin, xmax = np.where(reg_mask.sum(axis=1).sum(axis=1) > 0)[0][
             [0, -1]
@@ -91,33 +144,32 @@ def get_region_voxels(atlas, switch_lateralization=False, verbose=False):
         # subset only the voxels in one hemisphere for localization
         if switch_lateralization:
             voxel_pts_hem = voxel_pts[
-                :, voxel_pts[0, :] <= y_sinus_vox["medial-lateral"]
+                :, voxel_pts[0, :] <= y_sinus_vox[atlas.axes_dict["medial-lateral"]]
             ]
             # try the other side if there are no regions over here
             if np.shape(voxel_pts_hem)[1] == 0:
                 voxel_pts_hem = voxel_pts[
-                    :, voxel_pts[0, :] > y_sinus_vox["medial-lateral"]
+                    :, voxel_pts[0, :] > y_sinus_vox[atlas.axes_dict["medial-lateral"]]
                 ]
 
         else:
             voxel_pts_hem = voxel_pts[
-                :, voxel_pts[0, :] > y_sinus_vox["medial-lateral"]
+                :, voxel_pts[0, :] > y_sinus_vox[atlas.axes_dict["medial-lateral"]]
             ]
             if np.shape(voxel_pts_hem)[1] == 0:
                 voxel_pts_hem = voxel_pts[
-                    :, voxel_pts[0, :] <= y_sinus_vox["medial-lateral"]
+                    :, voxel_pts[0, :] <= y_sinus_vox[atlas.axes_dict["medial-lateral"]]
                 ]
 
         # get the mean of the voxel points in one hemisphere
         voxel_mean = np.mean(voxel_pts_hem, axis=1)
 
         # get the voxel mean
-        coords_vox = {
-            "medial-lateral": int(round(voxel_mean[0])),  # medio-lateral
-            # posterior-anterior
-            "posterior-anterior": int(round((voxel_mean[1]))),
-            "ventral-dorsal": int(round((voxel_mean[2]))),  # ventral-dorsal
-        }
+        coords_vox = [
+            int(round(voxel_mean[0])),  # medio-lateral
+            int(round(voxel_mean[1])),  # posterior-anterior
+            int(round(voxel_mean[2])),  # ventral-dorsal
+        ]
 
         region_vox.loc[len(region_vox)] = [
             nucleus,
@@ -159,51 +211,6 @@ def get_brain_labels(text_files):
     brain_labels = brain_labels[["label", "region", "type_"]]
     return brain_labels.dropna()
 
-
-def loc_dict_to_list(loc):
-    return [loc["medial-lateral"], loc["posterior-anterior"], loc["ventral-dorsal"]]
-
-
-def vox_to_um(affine, loc, um_mult, um_transform):
-    # apply affine to loc, then multiply by um mult
-    movement_relative_to_affine = {
-        axis: loc * um_mult
-        for axis, loc in zip(
-            ["medial-lateral", "posterior-anterior", "ventral-dorsal"],
-            apply_affine(affine, loc),
-        )
-    }
-    # take into account the transform from the y sinus
-    movement_relative_to_y_sinus = {
-        axis: movement_relative_to_affine[axis] - um_transform[axis]
-        for axis in ["medial-lateral", "posterior-anterior", "ventral-dorsal"]
-    }
-    return movement_relative_to_y_sinus
-
-
-def um_to_vox(affine, location_in_um, um_mult, um_transform):
-    # remove the transform
-    loc_um_minus_transform = {
-        axis: location_in_um[axis] + um_transform[axis]
-        for axis in ["medial-lateral", "posterior-anterior", "ventral-dorsal"]
-    }
-    # get inverse affine transform
-    inv_affine = inverse_affine(affine)
-
-    # apply multiplier (for um)
-    loc_um_list = np.array(loc_dict_to_list(loc_um_minus_transform)) / um_mult
-
-    # apply inverse affine
-    um = apply_affine(inv_affine, loc_um_list).round().astype("int")
-
-    um = {
-        axis: umi
-        for axis, umi in zip(
-            ["medial-lateral", "posterior-anterior", "ventral-dorsal"], um
-        )
-    }
-
-    return um
 
 def smooth_voxels(voxels, padding_vox=10, sigma=2):
     """
@@ -282,9 +289,51 @@ def get_shell(x):
 
     return shell
 
+def norm01(x):
+    return (x - np.min(x)) / (np.max(x)-np.min(x))
+
 
 def norm(x, x_low, x_high, rescale_low, rescale_high):
     return ((x - x_low) / (x_high - x_low)) * (rescale_high - rescale_low) + rescale_low
 
+
 def rgb2hex(r, g, b):
     return int("0x{:02x}{:02x}{:02x}".format(r, g, b), 16)
+
+
+def ensure_dir(file_path):
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+
+def get_axis_bounds(atlas, axis, pad=1000):
+
+    affine = atlas.voxel_data.loc["Brain", "affine"]
+    # get axes correspoinding to x and y
+    xax, yax = np.arange(3)[np.arange(3) != axis]
+
+    # get limits in each dim
+    xmin_, xmax_ = atlas.brain_limits[xax]
+    ymin_, ymax_ = atlas.brain_limits[yax]
+
+    # input in voxels to translate to um
+    input_low = np.zeros(3)
+    input_low[xax] = xmin_
+    input_low[yax] = ymin_
+    input_high = np.zeros(3)
+    input_high[xax] = xmax_
+    input_high[yax] = ymax_
+
+    # translate to um
+    xmin_um, ymin_um = vox_to_um(
+        input_low, affine, atlas.um_mult, atlas.y_sinus_um_transform
+    )[[xax, yax]]
+    xmax_um, ymax_um = vox_to_um(
+        input_high, affine, atlas.um_mult, atlas.y_sinus_um_transform
+    )[[xax, yax]]
+    return (xmin_um - pad, xmax_um + pad), (ymin_um - pad, ymax_um + pad)
+
+
+def inverse_dict(dict_):
+    return {value: key for key, value in dict_.items()}

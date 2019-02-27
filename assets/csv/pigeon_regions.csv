@@ -1,0 +1,33 @@
+region,label,region,type_
+Striatum,1,Striatum,Arcopallium
+Globus pallidus,2,Globus pallidus,Arcopallium
+N. taeniae amygdala (see olfactory system),3,N. taeniae amygdala (see olfactory system),Arcopallium
+Olfactory Bulb,1,Olfactory Bulb,Olfactory
+Cortex prepiriformis,2,Cortex prepiriformis,Olfactory
+Cortex piriformis,3,Cortex piriformis,Olfactory
+Angularis,1,Angularis,Auditory1
+Laminaris,2,Laminaris,Auditory1
+Magnocellularis,3,Magnocellularis,Auditory1
+Arcopallium MLd,4,Arcopallium MLd,Auditory1
+Ovoidalis,5,Ovoidalis,Auditory1
+Field L2,6,Field L2,Auditory1
+Oliva superior,1,Oliva superior,Auditory2
+LLv,2,LLv,Auditory2
+LLd,3,LLd,Auditory2
+Rotundus,1,Rotundus,Visual_thalamofugal
+GLd_left,2,GLd_left,Visual_thalamofugal
+GLd_right,3,GLd_right,Visual_thalamofugal
+HA,1,HA,Visual_wulst
+HI - HD,2,HI - HD,Visual_wulst
+nBOR,1,nBOR,Visual_aos
+Lentiformis mesencephali,2,Lentiformis mesencephali,Visual_aos
+Imc,1,Imc,Visual_isthmic
+Ipc,2,Ipc,Visual_isthmic
+SLu,3,SLu,Visual_isthmic
+PrV,1,PrV,Somatosensory_trigeminal
+Basalis,2,Basalis,Somatosensory_trigeminal
+HA,1,HA,Somatosensory_wulst
+HI -HD,2,HI -HD,Somatosensory_wulst
+Cuneatus Gracilis,1,Cuneatus Gracilis,Somatosensory_spinal_system_and_body_representation
+DLP,2,DLP,Somatosensory_spinal_system_and_body_representation
+DIVA,3,DIVA,Somatosensory_spinal_system_and_body_representation

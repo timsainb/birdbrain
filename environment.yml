@@ -17,3 +17,5 @@ dependencies:
      - k3d
      - nibabel
      - birdbrain
+     - unrar
+     - patool

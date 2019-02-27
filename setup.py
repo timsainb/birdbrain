@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setup(
     name='birdbrain',
     packages=find_packages(),
-    version='0.1.1',
+    version='0.1.2',
     description='Tools for using the songbird brain atlas',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -18,9 +18,10 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         'Framework :: IPython',
-        'Intended Audience :: Scientists',
         'Intended Audience :: Science/Research',
+        'Topic :: Education',
         'Topic :: Multimedia :: Graphics',
+        'Topic :: Scientific/Engineering :: Visualization',
     ],
     install_requires= [
         'ipywidgets>=7.0.1',
@@ -36,8 +37,8 @@ setup(
         'vtk',
         'pandas',
         'scikit-image',
-        'tqdm'
-
+        'tqdm',
+        'patool'
     ],
 
 )
