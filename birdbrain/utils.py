@@ -45,7 +45,12 @@ def get_voxel_data(img_files):
         dta = nibabel.load(data_file)
         affine, voxels = affine_transform_voxels(dta.affine, dta.get_data())
         # voxels = np.swapaxes(voxels, 0,2)
-        image_data.loc[len(image_data)] = [fn.capitalize(), data_file, np.squeeze(voxels), affine]
+        image_data.loc[len(image_data)] = [
+            fn.capitalize(),
+            data_file,
+            np.squeeze(voxels),
+            affine,
+        ]
     image_data = image_data.set_index(image_data.type_.values)
     return image_data
 
@@ -113,7 +118,7 @@ def get_region_voxels(atlas, switch_lateralization=False, verbose=False):
 
         if np.sum(reg_mask) == 0:
             continue
-            
+
         # boundaries of coordinates
         xmin, xmax = np.where(reg_mask.sum(axis=1).sum(axis=1) > 0)[0][
             [0, -1]
@@ -289,8 +294,9 @@ def get_shell(x):
 
     return shell
 
+
 def norm01(x):
-    return (x - np.min(x)) / (np.max(x)-np.min(x))
+    return (x - np.min(x)) / (np.max(x) - np.min(x))
 
 
 def norm(x, x_low, x_high, rescale_low, rescale_high):

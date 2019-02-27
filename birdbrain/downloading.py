@@ -152,8 +152,10 @@ def get_zebra_finch_data(password):
         print("Data already download")
         return
     if password is None:
-        raise ValueError('To request the zebra finch password email johan.vanaudekerke@uantwerpen.be')
-                
+        raise ValueError(
+            "To request the zebra finch password email johan.vanaudekerke@uantwerpen.be"
+        )
+
     print("Downloading data")
     dl_output = "../../data/raw/zebra_finch/"  # data download
     img_output = "../../data/processed/zebra_finch/"  # processed save spot
@@ -191,66 +193,89 @@ def get_zebra_finch_data(password):
     shutil.copy(nuc_del_hdr, img_output + "delineations/Nuclei.hdr")
 
 
-
 def get_pigeon_data():
     """The pigeon data delineations exist across multiple files - so this list contains info on which delineations should be joined together 
     """
     SYSTEMS_DELINEATIONS = [
-        ['Auditory1', [
-            '../../data/raw/pigeon/Full_package/Auditory/auditory1.img'
-        ]],
-        ['Auditory2', [
-            '../../data/raw/pigeon/Full_package/Auditory/auditory2.img'
-                      ]],
-        ['Olfactory', [
-            '../../data/raw/pigeon/Full_package/Olfactory/Olfactory.img'
-        ]],
-        ['Visual_thalamofugal', [
-            '../../data/raw/pigeon/Full_package/Visual/Thalamofugal/GLd-and-rotundus.img',
-        ]],
-        ['Somatosensory_wulst', [
-            '../../data/raw/pigeon/Full_package/Somatosensory/Wulst_HA_HI_HD-frontal-from-A13.img'
-        ]],
-        ['Somatosensory_spinal_system_and_body_representation', [
-            '../../data/raw/pigeon/Full_package/Somatosensory/Spinal system and body representation/GC_DLP_DIVA.img'
-        ]],
-        ['Somatosensory_trigeminal', [
-            '../../data/raw/pigeon/Full_package/Somatosensory/Trigeminal/PrV-and-Basalis.img'
-        ]],
-        ['Hippocampus', [
-            '../../data/raw/pigeon/Full_package/Hippocampus/hippocampus.img',
-        ]],
-        ['Visual_isthmic', [
-            '../../data/raw/pigeon/Full_package/Visual/Isthmic nuclei/Isthmo-opticus.img',
-            '../../data/raw/pigeon/Full_package/Visual/Isthmic nuclei/SLu-Ipc-Imc-right.img',
-            '../../data/raw/pigeon/Full_package/Visual/Isthmic nuclei/SLu-Ipc-Imc-left.img'
-        ]],
-        ['Arcopallium', [
-            '../../data/raw/pigeon/Full_package/Descending systems/Arcopallium/arcopallium.img'
-        ]],
-        ['Visual_wulst', [
-            '../../data/raw/pigeon/Full_package/Visual/Thalamofugal/visual-Wulst_HA_HI_HD-until-A13.img',
-        ]],
-
-        ['Visual_aos', [
-            '../../data/raw/pigeon/Full_package/Visual/Accessory Optic System/n-pontis-medialis.img',
-            '../../data/raw/pigeon/Full_package/Visual/Accessory Optic System/nBOR-Lentiformis-mesencephali.img'
-        ]],
-        ['Brain', [
-            '../../data/raw/pigeon/Full_package/Brainsurface/brainsurface_left.img',
-            '../../data/raw/pigeon/Full_package/Brainsurface/brainsurface_right.img'
-        ]],
-        ['Nucleus_taeniae', [
-            '../../data/raw/pigeon/Full_package/Olfactory/Nucleus-Taeniae.img',
-        ]],
-        ['Visual_tectofugal', [
-            '../../data/raw/pigeon/Full_package/Visual/Tectofugal/entopallium.img',
-            '../../data/raw/pigeon/Full_package/Visual/Tectofugal/rotundus.img',
-            '../../data/raw/pigeon/Full_package/Visual/Tectofugal/Tectum-left.img',
-            '../../data/raw/pigeon/Full_package/Visual/Tectofugal/Tectum-right.img',
-        ]]
+        ["Auditory1", ["../../data/raw/pigeon/Full_package/Auditory/auditory1.img"]],
+        ["Auditory2", ["../../data/raw/pigeon/Full_package/Auditory/auditory2.img"]],
+        ["Olfactory", ["../../data/raw/pigeon/Full_package/Olfactory/Olfactory.img"]],
+        [
+            "Visual_thalamofugal",
+            [
+                "../../data/raw/pigeon/Full_package/Visual/Thalamofugal/GLd-and-rotundus.img"
+            ],
+        ],
+        [
+            "Somatosensory_wulst",
+            [
+                "../../data/raw/pigeon/Full_package/Somatosensory/Wulst_HA_HI_HD-frontal-from-A13.img"
+            ],
+        ],
+        [
+            "Somatosensory_spinal_system_and_body_representation",
+            [
+                "../../data/raw/pigeon/Full_package/Somatosensory/Spinal system and body representation/GC_DLP_DIVA.img"
+            ],
+        ],
+        [
+            "Somatosensory_trigeminal",
+            [
+                "../../data/raw/pigeon/Full_package/Somatosensory/Trigeminal/PrV-and-Basalis.img"
+            ],
+        ],
+        [
+            "Hippocampus",
+            ["../../data/raw/pigeon/Full_package/Hippocampus/hippocampus.img"],
+        ],
+        [
+            "Visual_isthmic",
+            [
+                "../../data/raw/pigeon/Full_package/Visual/Isthmic nuclei/Isthmo-opticus.img",
+                "../../data/raw/pigeon/Full_package/Visual/Isthmic nuclei/SLu-Ipc-Imc-right.img",
+                "../../data/raw/pigeon/Full_package/Visual/Isthmic nuclei/SLu-Ipc-Imc-left.img",
+            ],
+        ],
+        [
+            "Arcopallium",
+            [
+                "../../data/raw/pigeon/Full_package/Descending systems/Arcopallium/arcopallium.img"
+            ],
+        ],
+        [
+            "Visual_wulst",
+            [
+                "../../data/raw/pigeon/Full_package/Visual/Thalamofugal/visual-Wulst_HA_HI_HD-until-A13.img"
+            ],
+        ],
+        [
+            "Visual_aos",
+            [
+                "../../data/raw/pigeon/Full_package/Visual/Accessory Optic System/n-pontis-medialis.img",
+                "../../data/raw/pigeon/Full_package/Visual/Accessory Optic System/nBOR-Lentiformis-mesencephali.img",
+            ],
+        ],
+        [
+            "Brain",
+            [
+                "../../data/raw/pigeon/Full_package/Brainsurface/brainsurface_left.img",
+                "../../data/raw/pigeon/Full_package/Brainsurface/brainsurface_right.img",
+            ],
+        ],
+        [
+            "Nucleus_taeniae",
+            ["../../data/raw/pigeon/Full_package/Olfactory/Nucleus-Taeniae.img"],
+        ],
+        [
+            "Visual_tectofugal",
+            [
+                "../../data/raw/pigeon/Full_package/Visual/Tectofugal/entopallium.img",
+                "../../data/raw/pigeon/Full_package/Visual/Tectofugal/rotundus.img",
+                "../../data/raw/pigeon/Full_package/Visual/Tectofugal/Tectum-left.img",
+                "../../data/raw/pigeon/Full_package/Visual/Tectofugal/Tectum-right.img",
+            ],
+        ],
     ]
-
 
     if len(glob("../../data/processed/pigeon/delineations/*.img")) > 1:
         print("Data already download")
@@ -258,7 +283,7 @@ def get_pigeon_data():
     print("Downloading data")
     dl_output = "../../data/raw/pigeon/"  # data download
     img_output = "../../data/processed/pigeon/"  # processed save spot
-    data_url = 'http://uahost.uantwerpen.be/bioimaginglab/pigeon.zip'
+    data_url = "http://uahost.uantwerpen.be/bioimaginglab/pigeon.zip"
 
     # ensure directories
     ensure_dir(dl_output)
@@ -272,37 +297,37 @@ def get_pigeon_data():
     # extract the data
     patoolib.extract_archive(zip_loc, outdir=dl_output)
 
-    # There are several img files that dont correspond directly to the data description table at 
+    # There are several img files that dont correspond directly to the data description table at
     #   https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/pigeon-brain-atlas/manual/
     #   I made a quick try at matching them up but this needs fixed
 
     # brainsurface will need to be merged...
-    #delineation_files = ['Auditory', 'Descending systems', 'Hippocampus', 'Olfactory', 'Somatosensory', 'Brainsurface']
-    img_files = ['CT', 'T2', 'T2star']
+    # delineation_files = ['Auditory', 'Descending systems', 'Hippocampus', 'Olfactory', 'Somatosensory', 'Brainsurface']
+    img_files = ["CT", "T2", "T2star"]
 
-    # for some reason pigeon brain is 
+    # for some reason pigeon brain is
 
     # get all hdr and img delination files
-    all_delineation_files = np.concatenate([i[1] + [j[:-4]+'.hdr' for j in i[1]] for i in SYSTEMS_DELINEATIONS])
+    all_delineation_files = np.concatenate(
+        [i[1] + [j[:-4] + ".hdr" for j in i[1]] for i in SYSTEMS_DELINEATIONS]
+    )
 
     # get the image files
     img_files = [
-        '../../data/raw/pigeon/Full_package/T2/T2.hdr',
-        '../../data/raw/pigeon/Full_package/T2/T2.img',
-        '../../data/raw/pigeon/Full_package/T2star/T2star.hdr',
-        '../../data/raw/pigeon/Full_package/T2star/T2star.img',
-        '../../data/raw/pigeon/Full_package/CT/CT.hdr',
-        '../../data/raw/pigeon/Full_package/CT/CT.img',
+        "../../data/raw/pigeon/Full_package/T2/T2.hdr",
+        "../../data/raw/pigeon/Full_package/T2/T2.img",
+        "../../data/raw/pigeon/Full_package/T2star/T2star.hdr",
+        "../../data/raw/pigeon/Full_package/T2star/T2star.img",
+        "../../data/raw/pigeon/Full_package/CT/CT.hdr",
+        "../../data/raw/pigeon/Full_package/CT/CT.img",
     ]
 
     for img_file in img_files:
-            shutil.copy(img_file, img_output + os.path.basename(img_file))
-
+        shutil.copy(img_file, img_output + os.path.basename(img_file))
 
     for del_file in all_delineation_files:
-            shutil.copy(del_file, img_output+'delineations/' + os.path.basename(del_file))
-    
-    
+        shutil.copy(del_file, img_output + "delineations/" + os.path.basename(del_file))
+
     return SYSTEMS_DELINEATIONS
 
 
@@ -315,20 +340,34 @@ def join_data_pigeon(pigeon_atlas):
     for system, imgs in pigeon_atlas.systems_delineations:
         for imgi, img in enumerate(imgs):
             if imgi == 0:
-                base = pigeon_atlas.voxel_data.loc[os.path.basename(img)[:-4].capitalize(), 'voxels']
+                base = pigeon_atlas.voxel_data.loc[
+                    os.path.basename(img)[:-4].capitalize(), "voxels"
+                ]
             else:
-                vox = pigeon_atlas.voxel_data.loc[os.path.basename(img)[:-4].capitalize(), 'voxels']
-                base[vox!=0] = vox[vox!=0]
-        aff = pigeon_atlas.voxel_data.loc[os.path.basename(img)[:-4].capitalize(), 'affine']
-        new_delineations.append(pd.DataFrame([[system, imgs, base, aff]], columns = ['type_', 'src', 'voxels', 'affine']))
+                vox = pigeon_atlas.voxel_data.loc[
+                    os.path.basename(img)[:-4].capitalize(), "voxels"
+                ]
+                base[vox != 0] = vox[vox != 0]
+        aff = pigeon_atlas.voxel_data.loc[
+            os.path.basename(img)[:-4].capitalize(), "affine"
+        ]
+        new_delineations.append(
+            pd.DataFrame(
+                [[system, imgs, base, aff]],
+                columns=["type_", "src", "voxels", "affine"],
+            )
+        )
     new_delineations = pd.concat(new_delineations)
     new_delineations.index = new_delineations.type_
 
     # remove rows with the same name
     new_labs = [i[0] for i in pigeon_atlas.systems_delineations]
-    pigeon_atlas.voxel_data = pigeon_atlas.voxel_data[np.array([i not in new_labs for i in pigeon_atlas.voxel_data.index])]
+    pigeon_atlas.voxel_data = pigeon_atlas.voxel_data[
+        np.array([i not in new_labs for i in pigeon_atlas.voxel_data.index])
+    ]
     # join with atlas
     pigeon_atlas.voxel_data = pd.concat([pigeon_atlas.voxel_data, new_delineations])
+
 
 def get_mustached_bat_data():
     def xml_to_pandas_brainregions(xml_loc):
@@ -338,58 +377,64 @@ def get_mustached_bat_data():
         e = xml.etree.ElementTree.parse(xml_loc).getroot()
 
         # get brain_label information
-        brain_labels = pd.DataFrame(columns = ['label', 'region', 'type_'])
+        brain_labels = pd.DataFrame(columns=["label", "region", "type_"])
         for area in e.getchildren():
             (_, abbrev), (_, value), (_, _), (_, name) = area.items()
-            brain_labels.loc[len(brain_labels)] = [int(value), abbrev, 'Mustached_bat_delineations']
+            brain_labels.loc[len(brain_labels)] = [
+                int(value),
+                abbrev,
+                "Mustached_bat_delineations",
+            ]
         brain_labels.index = brain_labels.region
-        brain_labels['label'] = brain_labels['label'].astype('int')
+        brain_labels["label"] = brain_labels["label"].astype("int")
         return brain_labels
 
     if len(glob("../../data/processed/mustached_bat/delineations/*.nii")) > 1:
         print("Data already download")
-        return xml_to_pandas_brainregions('../../data/processed/mustached_bat/delineations/Mustached_Bat_Delineations.atlas.xml')
-    
-    # image locations to save to 
+        return xml_to_pandas_brainregions(
+            "../../data/processed/mustached_bat/delineations/Mustached_Bat_Delineations.atlas.xml"
+        )
+
+    # image locations to save to
     dl_output = "../../data/raw/mustached_bat/"
     img_output = "../../data/processed/mustached_bat/"
     # make sure directories all exist
     ensure_dir(dl_output)
     ensure_dir(img_output)
     ensure_dir(img_output + "delineations/")
-    data_url = 'http://uahost.uantwerpen.be/bioimaginglab/Bat.zip'
+    data_url = "http://uahost.uantwerpen.be/bioimaginglab/Bat.zip"
     zip_loc = zip_loc = dl_output + "Bat.zip"
     # download data
     tqdm_download(data_url, zip_loc)
     # extract the data
     patoolib.extract_archive(zip_loc, outdir=dl_output)
-    xml_loc = '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/Mustached_Bat_Delineations.atlas.xml'
+    xml_loc = "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/Mustached_Bat_Delineations.atlas.xml"
     shutil.copy(xml_loc, img_output + "delineations/" + os.path.basename(xml_loc))
     xml_copy = img_output + "delineations/" + os.path.basename(xml_loc)
     brain_labels = xml_to_pandas_brainregions(xml_copy)
-    
+
     # image files to move
     imgs = [
-    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/ad.nii',
-    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/b0.nii',
-    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/col_fa.nii',
-    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/fa.nii',
-    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/md.nii',
-    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/rd.nii',
-    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/Skull_CT.nii',
-    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/T2w_3D_RARE.nii',
-    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/tdi_dti_color.nii',
-    '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/tdi_dti_grey.nii',
+        "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/ad.nii",
+        "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/b0.nii",
+        "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/col_fa.nii",
+        "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/fa.nii",
+        "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/md.nii",
+        "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/rd.nii",
+        "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/Skull_CT.nii",
+        "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/T2w_3D_RARE.nii",
+        "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/tdi_dti_color.nii",
+        "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/tdi_dti_grey.nii",
     ]
     # copy all the images
     for img in imgs:
         shutil.copy(img, img_output + os.path.basename(img))
 
     # copy all the images into delineations locations
-    img = '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/Mustached_Bat_Delineations.nii'
+    img = "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/Mustached_Bat_Delineations.nii"
     shutil.copy(img, img_output + "delineations/" + os.path.basename(img))
     # copy all the images into delineations locations
-    img = '../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/mask.nii'
+    img = "../../data/raw/mustached_bat/Bat/Mustached_Bat_Atlas/mask.nii"
 
-    shutil.copy(img, img_output + "delineations/" + 'Brain.nii')
+    shutil.copy(img, img_output + "delineations/" + "Brain.nii")
     return brain_labels

@@ -79,9 +79,9 @@ def plot_regions_3d(
     regions_to_plot=[["HVC", "Nuclei"]],
     downsample_pct=1,
     polygon_simplification=0,
-    additional_volumes = [],
+    additional_volumes=[],
     verbose=False,
-    height=1024
+    height=1024,
 ):
     """ plots brain regions on top of brain
     """
@@ -122,17 +122,19 @@ def plot_regions_3d(
         bg_image_data = atlas.voxel_data.loc[vol, "voxels"]
         affine = atlas.voxel_data.loc[vol, "affine"]
 
-        xm,ym,zm = utils.vox_to_um([0,0,0], affine, atlas.um_mult, atlas.y_sinus_um_transform)
-        xma,yma,zma = utils.vox_to_um(list(np.shape(bg_image_data)), affine, atlas.um_mult, atlas.y_sinus_um_transform)
+        xm, ym, zm = utils.vox_to_um(
+            [0, 0, 0], affine, atlas.um_mult, atlas.y_sinus_um_transform
+        )
+        xma, yma, zma = utils.vox_to_um(
+            list(np.shape(bg_image_data)),
+            affine,
+            atlas.um_mult,
+            atlas.y_sinus_um_transform,
+        )
 
-        img_bg_extent = np.concatenate(np.array(
-            [
-                [xm, xma],
-                [ym, yma],
-                [zm, zma],
-            ]))
+        img_bg_extent = np.concatenate(np.array([[xm, xma], [ym, yma], [zm, zma]]))
 
-        bg_image_data = np.uint8(utils.norm01(np.swapaxes(bg_image_data, 0, 2))*256)
+        bg_image_data = np.uint8(utils.norm01(np.swapaxes(bg_image_data, 0, 2)) * 256)
         addl_vol = k3d.volume(
             bg_image_data,
             color_range=[70, 100],
@@ -144,11 +146,10 @@ def plot_regions_3d(
         )
         addl_vols.append(addl_vol)
 
-
     # set atlas a region for y sinus
     atlas.region_vox.loc["y_sinus"] = ["y_sinus", "y_sinus", np.nan, np.nan, np.nan]
     atlas.region_vox.loc["y_sinus", "coords_vox"] = zero_point
-    
+
     color_pal = atlas.label_cmap.colors
 
     # loop through regions
@@ -158,12 +159,7 @@ def plot_regions_3d(
         # get voxel_data
         lab = atlas.brain_labels[atlas.brain_labels.type_ == type_].loc[reg, "label"]
         vox_data = np.swapaxes(
-            np.array(
-                atlas.voxel_data.loc[type_, "voxels"]
-                == lab
-            ),
-            0,
-            2,
+            np.array(atlas.voxel_data.loc[type_, "voxels"] == lab), 0, 2
         )
 
         """addl_vol = k3d.volume(
@@ -176,16 +172,14 @@ def plot_regions_3d(
                                     compression_level=9,
                                 )
                                 addl_vols.append(addl_vol)"""
-        
+
         # convert to vtk format
         vtk_dat = vox2vtk(vox_data, zero_point=zero_point)
 
         # simplify polygon
         if polygon_simplification > 0:
             vtk_dat = vtk_reduce(
-                vtk_dat,
-                polygon_simplification=polygon_simplification,
-                verbose=verbose,
+                vtk_dat, polygon_simplification=polygon_simplification, verbose=verbose
             )
         # shape of voxel data
         xs, ys, zs = vox_data.shape
@@ -198,7 +192,7 @@ def plot_regions_3d(
             (bounds[5] - bounds[4]) / xs,
         ]
 
-        #print(np.shape(vox_data), region_bounds, np.sum(vox_data))
+        # print(np.shape(vox_data), region_bounds, np.sum(vox_data))
         # create mesh plot
         region = k3d.vtk_poly_data(
             vtk_dat.GetOutput(),
@@ -244,7 +238,11 @@ def widget_controllers(atlas, vec, plot, bounds, regions_to_plot):
         value=0, min=bounds[0], max=bounds[1], step=100, description="medial-lateral:"
     )
     y_slider = widgets.FloatSlider(
-        value=0,min=bounds[2], max=bounds[3],step=100,description="posterior-anterior:",
+        value=0,
+        min=bounds[2],
+        max=bounds[3],
+        step=100,
+        description="posterior-anterior:",
     )
     z_slider = widgets.FloatSlider(
         value=0, min=bounds[4], max=bounds[5], step=100, description="ventral-dorsal:"
@@ -367,8 +365,8 @@ def widget_controllers(atlas, vec, plot, bounds, regions_to_plot):
     display(region_dropdown)
 
 
-def rotate_plot(plot, hide_vectors = True, n_frames = 10, fr = 5, nrot = 1, radius = 8000):
-    #screenshots = []
+def rotate_plot(plot, hide_vectors=True, n_frames=10, fr=5, nrot=1, radius=8000):
+    # screenshots = []
     vector_locs = np.where([type(i) == k3d.objects.Vectors for i in plot.objects])[0]
     # hide vectors
     if hide_vectors:
@@ -376,15 +374,22 @@ def rotate_plot(plot, hide_vectors = True, n_frames = 10, fr = 5, nrot = 1, radi
             plot.objects[vec_i].visible = False
         pg = False
         if plot.grid_visible == True:
-            pg=True
+            pg = True
             plot.grid_visible = False
 
     # make circle
     camera_loc = copy.deepcopy(plot.camera)
-    for rad in tqdm(np.linspace(0, 2*np.pi*nrot, n_frames*nrot), leave=False):
+    for rad in tqdm(np.linspace(0, 2 * np.pi * nrot, n_frames * nrot), leave=False):
         # move the camera
-        plot.camera = list(np.array([3*radius*np.sin(rad),3*radius*np.cos(rad), 0]) + np.array(camera_loc[3:6])) + camera_loc[3:6] + [0,0,1]               
-        time.sleep(1/fr)
+        plot.camera = (
+            list(
+                np.array([3 * radius * np.sin(rad), 3 * radius * np.cos(rad), 0])
+                + np.array(camera_loc[3:6])
+            )
+            + camera_loc[3:6]
+            + [0, 0, 1]
+        )
+        time.sleep(1 / fr)
         """
         # take a screenshot
         plot.fetch_screenshot(only_canvas=False)
@@ -398,8 +403,8 @@ def rotate_plot(plot, hide_vectors = True, n_frames = 10, fr = 5, nrot = 1, radi
         for vec_i in vector_locs:
             plot.objects[vec_i].visible = True
         if pg:
-            plot.grid_visible=True
-        
+            plot.grid_visible = True
+
     """
     fig, ax = plt.subplots(nrows=1,ncols=1, figsize=(15,15));
     ax.axis('off')
