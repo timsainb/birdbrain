@@ -4,7 +4,7 @@ os:
 python:
   - "3.6"
 script:
-  - pytest --cov=birdbrain --nbval-lax --current-env
+  - pytest --cov=birdbrain --current-env
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install p7zip; fi
