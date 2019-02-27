@@ -18,6 +18,8 @@ The package can do things like:
 
 There is an [online interactive demo](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) which should take no Python experience to use (just running cells in a Jupyter notebook). The demo uses Binder, which is a allows you to run a Jupyter notebook in a Docker environment online. It can take a bit to load, but has the benefit of not requiring you to install anything. If you want to install this software locally, the package is pip installable however. 
 
+![skull](assets/img/starling_skull_rotation.gif)
+
 ![screenshot](assets/img/3d_screenshot.png)
 
 ![field_l](assets/img/field_l.png)
