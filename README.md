@@ -128,7 +128,5 @@ If you use this data, please cite the respecitve atlas papers:
 
 #### TODO:
   - update to use high resolution T2 images rather than same resolution as delineations
-  - Take a 3d video (circle the structure - take screenshots every frame, tie them together)
   - Embed the javascript directly (e.g. save 3d to be embedded into website) (this won't allow for selecting regions though)
-  - write downloader for mustached bat
-  
+
