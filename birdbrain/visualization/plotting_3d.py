@@ -183,7 +183,7 @@ def plot_regions_3d(
         # simplify polygon
         if polygon_simplification > 0:
             vtk_dat = vtk_reduce(
-                vtk_dat.GetOutput(),
+                vtk_dat,
                 polygon_simplification=polygon_simplification,
                 verbose=verbose,
             )

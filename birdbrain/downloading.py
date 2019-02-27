@@ -151,7 +151,9 @@ def get_zebra_finch_data(password):
     if len(glob("../../data/processed/zebra_finch/delineations/*.img")) > 1:
         print("Data already download")
         return
-
+    if password is None:
+        raise ValueError('To request the zebra finch password email johan.vanaudekerke@uantwerpen.be')
+                
     print("Downloading data")
     dl_output = "../../data/raw/zebra_finch/"  # data download
     img_output = "../../data/processed/zebra_finch/"  # processed save spot

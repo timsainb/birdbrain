@@ -145,6 +145,17 @@ def plot_2d_coordinates(
     label_data = {r2p:{'voxels': atlas.voxel_data.loc[r2p, "voxels"]} for r2p in regions_to_plot}
     brain_data = atlas.voxel_data.loc["Brain", "voxels"]
 
+    zero_point = um_to_vox(
+        [0, 0, 0],
+        atlas.voxel_data.loc["Brain", "affine"],
+        atlas.um_mult,
+        atlas.y_sinus_um_transform,
+    )
+
+    # set atlas a region for y sinus
+    atlas.region_vox.loc["y_sinus"] = ["y_sinus", "y_sinus", np.nan, np.nan, np.nan]
+    atlas.region_vox.loc["y_sinus", "coords_vox"] = zero_point
+
     # if no image data is provided, do not plot it
     if bg_image is not None:
 
@@ -223,6 +234,8 @@ def plot_2d_coordinates(
         for region in regions:
             reg_lab = regions_plotted[regions_plotted.region.values == region].label.values[0]
             label_data[r2p]['x_lab'][label_data[r2p]['x_lab'] == reg_lab] = colors_plotted
+            label_data[r2p]['y_lab'][label_data[r2p]['y_lab'] == reg_lab] = colors_plotted
+            label_data[r2p]['z_lab'][label_data[r2p]['z_lab'] == reg_lab] = colors_plotted
             # change the value of regions_plotted.label
             regions_plotted.loc[regions_plotted.region.values == region, 'label'] = colors_plotted
             # update to next color
@@ -311,7 +324,6 @@ def plot_2d_coordinates(
                 vmax=cmax,
                 alpha=region_alpha,
             )
-            colors_plotted += np.sum(regions_plotted.type_.values == r2p)
 
         ax.set_xlim(xlims)
         ax.set_ylim(ylims)
@@ -340,7 +352,7 @@ from IPython.display import display, clear_output
 from ipywidgets import widgets
 
 
-def widget_controllers_2d(atlas, regions_to_plot="Nuclei", **kwargs):
+def widget_controllers_2d(atlas, regions_to_plot=["Nuclei"], **kwargs):
     def reg_dd(change):
         # move location to the center of that region
 
@@ -371,14 +383,20 @@ def widget_controllers_2d(atlas, regions_to_plot="Nuclei", **kwargs):
         display(region_dropdown)
         display(button)
 
-    regions = [
-        [reg, "Nuclei"]
-        for reg in list(
-            atlas.brain_labels[
-                atlas.brain_labels.type_ == regions_to_plot
-            ].region.values
-        )
-    ]
+    regions = np.concatenate([[[row.region, row.type_] 
+    for idx, row in atlas.brain_labels[
+                atlas.brain_labels.type_ == r2p
+            ].iterrows()] for r2p in regions_to_plot])
+
+
+    """regions = [
+                    [reg, "Nuclei"]
+                    for reg in list(
+                        atlas.brain_labels[
+                            atlas.brain_labels.type_ == regions_to_plot
+                        ].region.values
+                    )
+                ]"""
 
     region_dropdown = widgets.Dropdown(
         options=list(np.array(regions)[:, 0]) + ["y_sinus"],
