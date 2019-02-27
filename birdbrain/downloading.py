@@ -1,3 +1,4 @@
+from __future__ import print_function
 import urllib
 from tqdm import tqdm
 from birdbrain.utils import ensure_dir
