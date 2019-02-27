@@ -277,7 +277,10 @@ def plot_2d_coordinates(
             ylims = img_bg_extent_ax[2:]
 
             img = [x_img, y_img, z_img][atlas.axes_dict[axis]]
-            if np.sum(img) > 0:
+            # rectify
+            img[img < 0] = 0
+            print('testtest')
+            if np.sum(np.abs(img)) > 0:
                 ax.matshow(np.rot90(img ** 0.5), cmap=plt.cm.bone, extent=img_bg_extent_ax)
 
         else:
