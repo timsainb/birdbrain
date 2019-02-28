@@ -1,8 +1,6 @@
 from birdbrain.atlas import atlas
 from birdbrain.visualization.plotting_2d import plot_transection, plot_2d_coordinates
 
-REQUIRED_PYTHON = "python3"
-
 
 def test_make_atlas():
 
