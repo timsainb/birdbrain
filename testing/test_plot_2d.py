@@ -1,8 +1,10 @@
 from birdbrain.atlas import atlas
 import pytest
 import numpy as np
+import pandas as pd
 from birdbrain.visualization.plotting_2d import plot_transection, plot_2d_coordinates, make_label_data, update_color_labels
 from birdbrain.utils import um_to_vox
+import copy
 
 
 @pytest.fixture(scope="module")
@@ -121,7 +123,7 @@ def test_update_color_labels(starling_atlas, regions_to_plot):
         )
     )
     label_data, regions_plotted = make_label_data(starling_atlas, regions_to_plot, point_in_voxels)
-    old_label_data = label_data.deep_copy()
+    old_label_data = copy.deepcopy(label_data)
     old_regions_plotted = regions_plotted.deep_copy()
 
     color_ind = update_color_labels(regions_plotted, label_data, init_color_ind=1)
