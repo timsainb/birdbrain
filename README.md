@@ -11,10 +11,10 @@ This is a small library for viewing the [songbird/bat brain atlases](https://www
 
 The package can do things like:
 
-- Nuclei localization relative to a set stereotaxic reference point (e.g. y-sinus in starlings)
-- 3D printing an STL of the brains
+- Nuclei localization relative to a set stereotaxic reference point (e.g. y-sinus in starlings).
+- 3D printing an STL of the brains.
 - Plotting recording locations in 2d and 3d on imaging data. 
-- Creating visualizations / movies videos of nuclei of interest
+- Creating visualizations / movies videos of nuclei of interest.
 
 There is an [online interactive demo](https://mybinder.org/v2/gh/timsainb/birdbrain/master?filepath=Index.ipynb) which should take no Python experience to use (just running cells in a Jupyter notebook). The demo uses Binder, which allows you to run a Jupyter notebook in a Docker environment online. It can take a few minutes to load, but has the benefit of not requiring you to install anything. If you want to install this software locally, the package is pip installable however (see below). 
 
