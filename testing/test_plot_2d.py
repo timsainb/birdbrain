@@ -61,9 +61,9 @@ def old_make_label_data(atlas, regions_to_plot, point_in_voxels):
 @pytest.mark.parametrize("regions_to_plot", [["Brainregions"], ["Brainregions", "Nuclei"]])
 def test_make_label_data(starling_atlas, regions_to_plot):
     point_in_voxels = [0, 1500, -200]
-    label_data, regions_plotted = make_label_data(atlas, regions_to_plot, point_in_voxels)
+    label_data, regions_plotted = make_label_data(starling_atlas, regions_to_plot, point_in_voxels)
     old_label_data, old_regions_plotted = old_make_label_data(
-        atlas, regions_to_plot, point_in_voxels)
+        starling_atlas, regions_to_plot, point_in_voxels)
     assert len(regions_plotted) == len(old_regions_plotted)
     assert len(label_data) == len(old_label_data)
     for r2p in label_data:
