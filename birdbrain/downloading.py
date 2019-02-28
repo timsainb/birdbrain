@@ -1,4 +1,5 @@
-import urllib
+from __future__ import print_function
+from six.moves import urllib
 from tqdm import tqdm
 from birdbrain.utils import ensure_dir
 
