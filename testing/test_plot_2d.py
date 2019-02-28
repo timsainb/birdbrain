@@ -66,9 +66,9 @@ def test_make_label_data(starling_atlas, regions_to_plot):
     point_in_voxels = np.array(
         um_to_vox(
             point_in_um,
-            atlas.voxel_data.loc["Brain", "affine"],
-            atlas.um_mult,
-            atlas.y_sinus_um_transform,
+            starling_atlas.voxel_data.loc["Brain", "affine"],
+            starling_atlas.um_mult,
+            starling_atlas.y_sinus_um_transform,
         )
     )
     label_data, regions_plotted = make_label_data(starling_atlas, regions_to_plot, point_in_voxels)
