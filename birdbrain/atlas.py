@@ -55,7 +55,6 @@ class atlas(object):
             self.brain_labels.columns = ["label", "region", "type_"]
             self.systems_delineations = dl.get_pigeon_data()
 
-
         elif species == "mustached_bat":
             self.brain_labels = dl.get_mustached_bat_data()
 
@@ -68,7 +67,7 @@ class atlas(object):
         self.inverse_axes_dict = inverse_dict(self.axes_dict)
 
         # path of images
-        if species == 'mustached_bat':
+        if species == "mustached_bat":
             img_files = glob(os.path.join(delin_path, "*.nii")) + glob(
                 os.path.join(dset_dir, "*.nii")
             )
@@ -80,8 +79,7 @@ class atlas(object):
         # images from each type of scan, as well as transcribed locations ['type_', 'src', 'voxels']
         self.voxel_data = utils.get_voxel_data(img_files)
 
-
-        if species == 'pigeon':
+        if species == "pigeon":
             dl.join_data_pigeon(self)
 
         # smooth the whole brain because the atlas is a bit noisy
