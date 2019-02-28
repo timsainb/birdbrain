@@ -105,6 +105,27 @@ def plot_box_bg(ax, extent, box_size_um=2000, mn=0.2, mx=0.3):
     )
 
 
+def make_label_data(atlas, regions_to_plot, point_in_voxels):
+    label_data = {
+        r2p: {"voxels": atlas.voxel_data.loc[r2p, "voxels"]} for r2p in regions_to_plot
+    }
+    typegb = atlas.brain_labels.groupby('type_')
+    # get label data
+    for r2p in regions_to_plot:
+        label_data[r2p]["x_lab"] = label_data[r2p]["voxels"][point_in_voxels[0], :, :].squeeze()
+        label_data[r2p]["y_lab"] = label_data[r2p]["voxels"][:, point_in_voxels[1], :].squeeze()
+        label_data[r2p]["z_lab"] = label_data[r2p]["voxels"][:, :, point_in_voxels[2]].squeeze()
+
+        # subset labels dataframe for only the ones appearing here
+        label_data[r2p]["unique_labels"] = np.unique(np.concatenate(
+            [label_data[r2p][dim + "_lab"].flatten() for dim in 'xyz']))
+        label_data[r2p]["unique_index"] = typegb.get_group(r2p).loc[typegb.get_group(
+            r2p)['label'].isin(label_data[r2p]["unique_labels"])].index
+    regions_plotted = atlas.brain_labels.loc[np.concatenate(
+        [label_data[r2p]["unique_index"] for r2p in regions_to_plot])].copy()
+    return label_data, regions_plotted
+
+
 def plot_2d_coordinates(
     atlas,
     point_in_voxels=None,
@@ -143,10 +164,6 @@ def plot_2d_coordinates(
     # print the point in um
     print({inverse_dict(atlas.axes_dict)[i]: int(point_in_um[i]) for i in range(3)})
 
-    # the type of image to plot
-    label_data = {
-        r2p: {"voxels": atlas.voxel_data.loc[r2p, "voxels"]} for r2p in regions_to_plot
-    }
     brain_data = atlas.voxel_data.loc["Brain", "voxels"]
 
     zero_point = um_to_vox(
@@ -200,39 +217,8 @@ def plot_2d_coordinates(
         y_img_masked = brain_masked_img_data[:, point_in_voxels[1], :].squeeze()
         z_img_masked = brain_masked_img_data[:, :, point_in_voxels[2]].squeeze()
 
-    # get label data
-    for r2p in regions_to_plot:
-        x_lab = label_data[r2p]["voxels"][point_in_voxels[0], :, :].squeeze()
-        y_lab = label_data[r2p]["voxels"][:, point_in_voxels[1], :].squeeze()
-        z_lab = label_data[r2p]["voxels"][:, :, point_in_voxels[2]].squeeze()
+    label_data, regions_plotted = make_label_data(atlas, regions_to_plot, point_in_voxels)
 
-        # subset labels dataframe for only the ones appearing here
-        unique_labels = np.unique(
-            list(x_lab.flatten()) + list(y_lab.flatten()) + list(z_lab.flatten())
-        )
-
-        label_data[r2p]["x_lab"] = x_lab
-        label_data[r2p]["y_lab"] = y_lab
-        label_data[r2p]["z_lab"] = z_lab
-        label_data[r2p]["unique_labels"] = unique_labels
-
-    # subset brain_labels dataframe for only the labels shown here
-    regions_plotted = pd.concat(
-        [
-            atlas.brain_labels[
-                (atlas.brain_labels.type_ == r2p)
-                & (
-                    [
-                        label in label_data[r2p]["unique_labels"]
-                        for label in atlas.brain_labels.label.values
-                    ]
-                )
-            ]
-            for r2p in regions_to_plot
-        ]
-    )
-
-    regions_plotted.index = np.arange(len(regions_plotted))
     # reset values of xlab, ylab, zlab, and regions_plotted
     colors_plotted = 1  # the number of colors plotted so far
     for r2p in regions_to_plot:
