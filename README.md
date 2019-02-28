@@ -7,12 +7,12 @@ birdbrain
 
 Tim Sainburg & Marvin Thielk
 
-This is a small library for viewing the [songbird/bat brain atlases](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) (Poirier et al., 2008; De Groof et al., 2016; Vellema et al., 2011; Gunturken et al., 2013; Washington et al., 2018). It currently has examples of European starling, Canary, Zebra finch, Mustached bat, and Pigeon brain atlases. 
+This is a small library for viewing the [songbird/bat brain atlases](https://www.uantwerpen.be/en/research-groups/bio-imaging-lab/research/mri-atlases/starling-brain-atlas/) (Poirier et al., 2008; De Groof et al., 2016; Vellema et al., 2011; Güntürkün et al., 2013; Washington et al., 2018). It currently has examples of European starling, Canary, Zebra finch, Mustached bat, and Pigeon brain atlases. 
 
 The package can do things like:
 
-- nuclei localization relative to a set stereotaxic reference point (e.g. y-sinus in starlings)
-- 3d printing an STL of the brains
+- Nuclei localization relative to a set stereotaxic reference point (e.g. y-sinus in starlings)
+- 3D printing an STL of the brains
 - Plotting recording locations in 2d and 3d on imaging data. 
 - Creating visualizations / movies videos of nuclei of interest
 
