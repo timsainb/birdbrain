@@ -1,6 +1,7 @@
 from birdbrain.atlas import atlas
 import pytest
 from birdbrain.visualization.plotting_2d import plot_transection, plot_2d_coordinates, make_label_data
+from birdbrain.utils import um_to_vox
 
 
 @pytest.fixture(scope="module")
@@ -60,7 +61,15 @@ def old_make_label_data(atlas, regions_to_plot, point_in_voxels):
 
 @pytest.mark.parametrize("regions_to_plot", [["Brainregions"], ["Brainregions", "Nuclei"]])
 def test_make_label_data(starling_atlas, regions_to_plot):
-    point_in_voxels = [0, 1500, -200]
+    point_in_um = [0, 1500, -200]
+    point_in_voxels = np.array(
+        um_to_vox(
+            point_in_um,
+            atlas.voxel_data.loc["Brain", "affine"],
+            atlas.um_mult,
+            atlas.y_sinus_um_transform,
+        )
+    )
     label_data, regions_plotted = make_label_data(starling_atlas, regions_to_plot, point_in_voxels)
     old_label_data, old_regions_plotted = old_make_label_data(
         starling_atlas, regions_to_plot, point_in_voxels)
