@@ -126,6 +126,21 @@ def make_label_data(atlas, regions_to_plot, point_in_voxels):
     return label_data, regions_plotted
 
 
+def update_color_labels(regions_plotted, label_data, init_color_ind=0):
+    # reset values of xlab, ylab, zlab, and regions_plotted
+    color_ind = init_color_ind
+    for r2p, type_group in regions_plotted.groupby('type_'):
+        for region, row in type_group.iterrows():
+            region_lable = row['label']
+            for dim in 'xyz':
+                label_data[r2p][dim + "_lab"][
+                    label_data[r2p][dim + "_lab"] == region_lable
+                ] = color_ind
+            regions_plotted.loc[region, "label"] = color_ind
+            color_ind += 1
+    return color_ind
+
+
 def plot_2d_coordinates(
     atlas,
     point_in_voxels=None,
@@ -218,32 +233,7 @@ def plot_2d_coordinates(
         z_img_masked = brain_masked_img_data[:, :, point_in_voxels[2]].squeeze()
 
     label_data, regions_plotted = make_label_data(atlas, regions_to_plot, point_in_voxels)
-
-    # reset values of xlab, ylab, zlab, and regions_plotted
-    colors_plotted = 1  # the number of colors plotted so far
-    for r2p in regions_to_plot:
-        # get regions plotted in this r2p
-        regions = regions_plotted[regions_plotted.type_.values == r2p].region.values
-        # for each of those regions, change the values of x_lab, y_lab, z_lab
-        for region in regions:
-            reg_lab = regions_plotted[
-                regions_plotted.region.values == region
-            ].label.values[0]
-            label_data[r2p]["x_lab"][
-                label_data[r2p]["x_lab"] == reg_lab
-            ] = colors_plotted
-            label_data[r2p]["y_lab"][
-                label_data[r2p]["y_lab"] == reg_lab
-            ] = colors_plotted
-            label_data[r2p]["z_lab"][
-                label_data[r2p]["z_lab"] == reg_lab
-            ] = colors_plotted
-            # change the value of regions_plotted.label
-            regions_plotted.loc[
-                regions_plotted.region.values == region, "label"
-            ] = colors_plotted
-            # update to next color
-            colors_plotted += 1
+    _ = update_color_labels(regions_plotted, label_data, init_color_ind=1)
 
     # normalize colors to regions being plotted
     if len(regions_plotted) > 0:
