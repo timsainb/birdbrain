@@ -1,5 +1,6 @@
 from birdbrain.atlas import atlas
 import pytest
+import numpy as np
 from birdbrain.visualization.plotting_2d import plot_transection, plot_2d_coordinates, make_label_data
 from birdbrain.utils import um_to_vox
 
