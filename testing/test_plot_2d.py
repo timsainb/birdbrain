@@ -124,7 +124,7 @@ def test_update_color_labels(starling_atlas, regions_to_plot):
     )
     label_data, regions_plotted = make_label_data(starling_atlas, regions_to_plot, point_in_voxels)
     old_label_data = copy.deepcopy(label_data)
-    old_regions_plotted = regions_plotted.deep_copy()
+    old_regions_plotted = copy.deepcopy(regions_plotted)
 
     color_ind = update_color_labels(regions_plotted, label_data, init_color_ind=1)
     old_color_ind = old_update_color_labels(old_regions_plotted, old_label_data, init_color_ind=1)
