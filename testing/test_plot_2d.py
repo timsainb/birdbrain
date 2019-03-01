@@ -82,7 +82,7 @@ def test_make_label_data(starling_atlas, regions_to_plot):
         assert np.all(label_data[r2p]['unique_labels'] == old_label_data[r2p]['unique_labels'])
 
 
-def old_update_color_labels(regions_plotted, label_data, init_color_ind=1):
+def old_update_color_labels(regions_plotted, label_data, regions_to_plot, init_color_ind=1):
     # reset values of xlab, ylab, zlab, and regions_plotted
     colors_plotted = init_color_ind  # the number of colors plotted so far
     for r2p in regions_to_plot:
@@ -127,6 +127,7 @@ def test_update_color_labels(starling_atlas, regions_to_plot):
     old_regions_plotted = copy.deepcopy(regions_plotted)
 
     color_ind = update_color_labels(regions_plotted, label_data, init_color_ind=1)
-    old_color_ind = old_update_color_labels(old_regions_plotted, old_label_data, init_color_ind=1)
+    old_color_ind = old_update_color_labels(
+        old_regions_plotted, old_label_data, regions_to_plot, init_color_ind=1)
 
     assert color_ind == old_color_ind
