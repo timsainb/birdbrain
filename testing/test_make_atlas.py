@@ -1,11 +1,5 @@
-import sys
 from birdbrain.atlas import atlas
-from birdbrain.utils import um_to_vox
-import numpy as np
-from birdbrain.visualization.plotting_3d import plot_regions_3d, rotate_plot
 from birdbrain.visualization.plotting_2d import plot_transection, plot_2d_coordinates
-
-REQUIRED_PYTHON = "python3"
 
 
 def test_make_atlas():
