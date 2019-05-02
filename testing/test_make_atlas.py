@@ -1,3 +1,9 @@
+import os
+import matplotlib as mpl
+if os.environ.get('DISPLAY', '') == '':
+    print('no display found. Using non-interactive Agg backend')
+    mpl.use('Agg')
+
 from birdbrain.atlas import atlas
 from birdbrain.visualization.plotting_2d import plot_transection, plot_2d_coordinates
 
