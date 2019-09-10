@@ -41,11 +41,16 @@ def get_voxel_data(img_files):
     print("Getting voxel data from .img files...")
     image_data = pd.DataFrame(columns=["type_", "src", "voxels", "affine"])
     for data_file in img_files:
-        fn = data_file.split("/")[-1][:-4]
-        dta = nibabel.load(data_file)
+        fn = data_file.stem
+        dta = nibabel.load(data_file.as_posix())
         affine, voxels = affine_transform_voxels(dta.affine, dta.get_data())
         # voxels = np.swapaxes(voxels, 0,2)
-        image_data.loc[len(image_data)] = [fn.capitalize(), data_file, np.squeeze(voxels), affine]
+        image_data.loc[len(image_data)] = [
+            fn.capitalize(),
+            data_file,
+            np.squeeze(voxels),
+            affine,
+        ]
     image_data = image_data.set_index(image_data.type_.values)
     return image_data
 
@@ -113,7 +118,7 @@ def get_region_voxels(atlas, switch_lateralization=False, verbose=False):
 
         if np.sum(reg_mask) == 0:
             continue
-            
+
         # boundaries of coordinates
         xmin, xmax = np.where(reg_mask.sum(axis=1).sum(axis=1) > 0)[0][
             [0, -1]
@@ -198,7 +203,7 @@ def get_brain_labels(text_files):
     all_labs = []
     for txtfile in text_files:
         labs = pd.read_csv(txtfile, delimiter=" ", header=None)
-        labs["type_"] = txtfile.split("/")[-1][:-4]
+        labs["type_"] = txtfile.stem
         labs.columns = ["label", "region", "type_"]
         all_labs.append(labs)
     brain_labels = pd.concat(all_labs)
@@ -289,8 +294,9 @@ def get_shell(x):
 
     return shell
 
+
 def norm01(x):
-    return (x - np.min(x)) / (np.max(x)-np.min(x))
+    return (x - np.min(x)) / (np.max(x) - np.min(x))
 
 
 def norm(x, x_low, x_high, rescale_low, rescale_high):
@@ -299,12 +305,6 @@ def norm(x, x_low, x_high, rescale_low, rescale_high):
 
 def rgb2hex(r, g, b):
     return int("0x{:02x}{:02x}{:02x}".format(r, g, b), 16)
-
-
-def ensure_dir(file_path):
-    directory = os.path.dirname(file_path)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
 
 
 def get_axis_bounds(atlas, axis, pad=1000):

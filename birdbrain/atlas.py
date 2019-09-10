@@ -6,12 +6,64 @@ from birdbrain import utils
 from birdbrain.utils import vox_to_um, inverse_dict
 import pandas as pd
 import birdbrain.downloading as dl
+from birdbrain.paths import DATA_DIR, PROJECT_DIR, ASSETS_DIR
+
+
+def load_species_data(dset_dir, delin_path, species, password=None):
+    """ load brain region data for each species
+    """
+    systems_delineations = None
+
+    if species == "canary":
+        brain_labels = pd.read_csv(
+            ASSETS_DIR / "csv" / "canary_regions.csv", index_col="region"
+        )
+        brain_labels.columns = ["label", "region", "type_"]
+        dl.get_canary_data()
+
+    elif species == "starling":
+        dl.get_starling_data(dset_dir)
+        # path of labels
+        text_files = list(delin_path.glob("*.txt"))
+        # transcription labels ['label', 'region', 'type_']
+        if len(text_files) > 0:
+            brain_labels = utils.get_brain_labels(text_files)
+
+    elif species == "zebra_finch":
+        brain_labels = pd.read_csv(
+            ASSETS_DIR / "csv" / "zebra_finch_regions.csv", index_col="region"
+        )
+        brain_labels.columns = ["label", "region", "type_"]
+        dl.get_zebra_finch_data(password)
+
+    elif species == "pigeon":
+
+        brain_labels = pd.read_csv(
+            ASSETS_DIR / "csv" / "pigeon_regions.csv", index_col="region"
+        )
+        brain_labels.columns = ["label", "region", "type_"]
+        systems_delineations = dl.get_pigeon_data()
+
+    elif species == "mustached_bat":
+        brain_labels = dl.get_mustached_bat_data()
+
+    return brain_labels, systems_delineations
+
+
+def load_images(delin_path, dset_dir):
+    img_files = (
+        list(delin_path.glob("*.nii"))
+        + list(delin_path.glob("*.img"))
+        + list(dset_dir.glob("*.nii"))
+        + list(dset_dir.glob("*.img"))
+    )
+    return img_files
 
 
 class atlas(object):
     def __init__(
         self,
-        dset_dir,
+        dset_dir=None,
         label_cmap=None,
         um_mult=100,
         img_cmap=None,
@@ -22,42 +74,16 @@ class atlas(object):
         password=None,
     ):
 
+        # get the dataset location
+        if dset_dir is None:
+            dset_dir = DATA_DIR / "processed" / species
+
         # path of delineations
-        delin_path = os.path.join(os.path.abspath(dset_dir), "delineations/")
+        delin_path = dset_dir / "delineations"
 
-        if species == "canary":
-            self.brain_labels = pd.read_csv(
-                "../../assets/csv/canary_regions.csv", index_col="region"
-            )
-            self.brain_labels.columns = ["label", "region", "type_"]
-            dl.get_canary_data()
-
-        elif species == "starling":
-            dl.get_starling_data()
-            # path of labels
-            text_files = glob(os.path.join(delin_path, "*.txt"))
-            # transcription labels ['label', 'region', 'type_']
-            if len(text_files) > 0:
-                self.brain_labels = utils.get_brain_labels(text_files)
-
-        elif species == "zebra_finch":
-            self.brain_labels = pd.read_csv(
-                "../../assets/csv/zebra_finch_regions.csv", index_col="region"
-            )
-            self.brain_labels.columns = ["label", "region", "type_"]
-            dl.get_zebra_finch_data(password)
-
-        elif species == "pigeon":
-
-            self.brain_labels = pd.read_csv(
-                "../../assets/csv/pigeon_regions.csv", index_col="region"
-            )
-            self.brain_labels.columns = ["label", "region", "type_"]
-            self.systems_delineations = dl.get_pigeon_data()
-
-
-        elif species == "mustached_bat":
-            self.brain_labels = dl.get_mustached_bat_data()
+        self.brain_labels, self.systems_delineations = load_species_data(
+            dset_dir, delin_path, species, password
+        )
 
         # how axes labels relate to affine transformed data in voxels
         self.axes_dict = {
@@ -68,20 +94,12 @@ class atlas(object):
         self.inverse_axes_dict = inverse_dict(self.axes_dict)
 
         # path of images
-        if species == 'mustached_bat':
-            img_files = glob(os.path.join(delin_path, "*.nii")) + glob(
-                os.path.join(dset_dir, "*.nii")
-            )
-        else:
-            img_files = glob(os.path.join(delin_path, "*.img")) + glob(
-                os.path.join(dset_dir, "*.img")
-            )
+        img_files = load_images(delin_path, dset_dir)
 
         # images from each type of scan, as well as transcribed locations ['type_', 'src', 'voxels']
         self.voxel_data = utils.get_voxel_data(img_files)
 
-
-        if species == 'pigeon':
+        if species == "pigeon":
             dl.join_data_pigeon(self)
 
         # smooth the whole brain because the atlas is a bit noisy
@@ -90,7 +108,7 @@ class atlas(object):
                 self.voxel_data.loc[img, "voxels"], sigma=smoothing_sigma
             )
 
-        # for some reason, units are um/100 in this dataset
+        # for some reason, units are um/100 in some datasets and um in others
         self.um_mult = um_mult
 
         # make a shadow background for plots
@@ -134,6 +152,16 @@ class atlas(object):
 
         # determine where the brain exists (for plotting)
         self.determine_brain_limits()
+
+        # get list of regions in atlas
+        self.regions = {}
+        for region in np.unique(self.brain_labels.type_):
+            self.regions[region] = [
+                [reg, region]
+                for reg in self.brain_labels[
+                    self.brain_labels.type_ == region
+                ].region.values
+            ]
 
         print("Atlas created")
 

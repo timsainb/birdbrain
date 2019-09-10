@@ -4,12 +4,11 @@ from tqdm.autonotebook import tqdm
 import scipy.ndimage
 from IPython.display import display
 from ipywidgets import widgets
-from birdbrain import utils
 import time
-
 import k3d
 import vtk
 
+from birdbrain import utils
 
 def vox2vtk(voxels, zero_point=None):
     """ converts voxels to vkt mesh object
@@ -114,6 +113,7 @@ def plot_regions_3d(
         alpha_coef=0.25,
         bounds=bounds,
         compression_level=9,
+        name = "Brain"
     )
 
     addl_vols = []
@@ -153,6 +153,7 @@ def plot_regions_3d(
 
     # loop through regions
     regs = []
+    text_labels = []
     for ri, (reg, type_) in enumerate(tqdm(regions_to_plot, leave=False)):
         color = (np.array(color_pal[ri % len(color_pal)]) * 255).astype("int")
         # get voxel_data
@@ -166,16 +167,31 @@ def plot_regions_3d(
             2,
         )
 
-        """addl_vol = k3d.volume(
-                                    vox_data,
-                                    color_range=[0, 1],
-                                    color_map=k3d.matplotlib_color_maps.Greys,
-                                    samples=128,
-                                    alpha_coef=10.0,
-                                    bounds=bounds,
-                                    compression_level=9,
-                                )
-                                addl_vols.append(addl_vol)"""
+        show_label = True
+        if show_label:
+            # the center of the region in voxels
+            cv = atlas.region_vox.loc[reg].coords_vox
+            # add an offset to put text above region
+            cv[1] += (atlas.region_vox.loc[reg].region_bounds[4] - 
+                atlas.region_vox.loc[reg].region_bounds[1])/2
+            text_x, text_y, text_z = utils.vox_to_um(
+                cv,
+                atlas.voxel_data.loc["Brain", "affine"],
+                atlas.um_mult,
+                atlas.y_sinus_um_transform,
+            )
+
+            plt_text = k3d.text(reg, 
+                position=[
+                    text_x,
+                    text_y, 
+                    text_z
+                    ], 
+                color=0xff0000, 
+                size=2,
+                reference_point="cb"
+            )
+            #text_labels.append(plt_text)
         
         # convert to vtk format
         vtk_dat = vox2vtk(vox_data, zero_point=zero_point)
@@ -204,6 +220,7 @@ def plot_regions_3d(
             vtk_dat.GetOutput(),
             color=utils.rgb2hex(color[0], color[1], color[2]),
             bounds=region_bounds,
+            name = reg
         )
 
         regs.append(region)
@@ -212,7 +229,8 @@ def plot_regions_3d(
     vectors = [10000, 0, 0, 0, 10000, 0, 0, 0, 10000]
     colors = [0xFF0000, 0xFF0000, 0x00FF00, 0x00FF00, 0x0000FF, 0x0000FF]
     vec = k3d.vectors(
-        origins, vectors, colors=colors, line_width=100, use_head=True, head_size=1000
+        origins, vectors, colors=colors, line_width=100, use_head=True, head_size=1000,
+        name = "center point"
     )
 
     plot = k3d.plot(height=height, background_color=0xFEFEFE)
@@ -220,6 +238,10 @@ def plot_regions_3d(
 
     for vol in addl_vols:
         plot += vol
+
+    # plot labels
+    for lab in text_labels:
+        plot += lab
 
     # plot regions
     for region in regs:
@@ -385,14 +407,7 @@ def rotate_plot(plot, hide_vectors = True, n_frames = 10, fr = 5, nrot = 1, radi
         # move the camera
         plot.camera = list(np.array([3*radius*np.sin(rad),3*radius*np.cos(rad), 0]) + np.array(camera_loc[3:6])) + camera_loc[3:6] + [0,0,1]               
         time.sleep(1/fr)
-        """
-        # take a screenshot
-        plot.fetch_screenshot(only_canvas=False)
-        img = b64decode(plot.screenshot)  
-        img = io.BytesIO(img)
-        img = mpimg.imread(img, format='PNG')
-        screenshots.append(img)
-        """
+
     # show vectors
     if hide_vectors:
         for vec_i in vector_locs:
@@ -400,17 +415,4 @@ def rotate_plot(plot, hide_vectors = True, n_frames = 10, fr = 5, nrot = 1, radi
         if pg:
             plot.grid_visible=True
         
-    """
-    fig, ax = plt.subplots(nrows=1,ncols=1, figsize=(15,15));
-    ax.axis('off')
-    plt.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, 
-            hspace = 0, wspace = 0)
-    ims = []
-    for i in tqdm(np.arange(n_frames)):
-        im = plt.imshow(screenshots[i], animated=True);
-        ims.append([im]);
-    ani = animation.ArtistAnimation(fig, ims, interval=1000, blit=True,
-                                    repeat_delay=1000);
-    plt.close()
-    HTML(ani.to_html5_video())
-    """
+   
